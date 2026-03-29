@@ -1,0 +1,72 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# pytest
+.pytest_cache/
+
+# Test outputs and logs
+*_output.txt
+*.log
+test_outputs/
+
+# Editor directories
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+# Python cache and bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Virtual environments and environment files
+venv/
+env/
+.venv/
+.env
+ENV/
+
+# Test / coverage
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+coverage.xml
+htmlcov/
+
+# IDEs / editors
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# macOS
+.DS_Store
+
+# OpenEnv / local build artifacts
+openenv_construction_env.egg-info/

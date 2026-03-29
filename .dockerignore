@@ -1,0 +1,46 @@
+# Exclude Python caches and bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtualenvs and environment files
+venv/
+.venv/
+env/
+.env
+.env.*
+.Python
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Test and cache
+.pytest_cache/
+.tox/
+.nox/
+.mypy_cache/
+.cache/
+
+# IDEs / editors
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+
+# OS files
+.DS_Store
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# Project metadata
+openenv_construction_env.egg-info/
+
+# Git
+.git
+.gitignore
