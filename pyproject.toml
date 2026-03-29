@@ -28,6 +28,7 @@ dependencies = [
     # "smolagents>=1.22.0,<2",
     "openenv-core>=0.2.2",
     "pydantic>=2.0.0",  
+    "openai>=1.0.0",
 ]
 
 [project.optional-dependencies]

@@ -4,12 +4,5 @@ type: space
 runtime: fastapi
 app: server.app:app
 port: 8000
-version: "1.0.0"
-description: >
-  A reinforcement learning environment simulating a construction project manager.
-  The agent allocates workers, orders materials, and handles real-world disruptions
-  to minimize delay and cost across easy/medium/hard difficulty levels.
-author: Avishkar-00
-entry_point: server.app:app
-python_version: "3.11"
-hardware: cpu-basic
+
+

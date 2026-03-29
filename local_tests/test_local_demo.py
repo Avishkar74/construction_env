@@ -46,7 +46,7 @@ def print_tasks(tasks: List):
 def client_demo(steps: int, difficulty: str, seed: int, verbose: bool = True):
     LOG(f"\n=== CLIENT DEMO (difficulty={difficulty}, steps={steps}, seed={seed}) ===")
     # Use localhost address for client connections on Windows
-    with ConstructionEnv(base_url="http://127.0.0.1:8000").sync() as env:
+    with ConstructionEnv(base_url="https://avishkar-00-construction-env.hf.space").sync() as env:
         obs = env.reset(difficulty=difficulty)
         LOG("Initial observation (client):")
         LOG(f"  day={obs.observation.day} / max_days={obs.observation.max_days}")

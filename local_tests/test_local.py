@@ -4,14 +4,13 @@ sys.path.insert(0, os.path.abspath("."))
 
 from client import ConstructionEnv
 from models import ConstructionAction
-import random
 
-BASE_URL = "http://localhost:8000"
+BASE_URL = "https://avishkar-00-construction-env.hf.space"
 
 def test_easy():
     print("\n=== Testing EASY difficulty ===")
     with ConstructionEnv(base_url=BASE_URL).sync() as env:
-        # Reset with easy difficulty (deterministic seed to avoid flaky worker-absence)
+        # Reset with easy difficulty (deterministic seed)
         obs = env.reset(difficulty="easy", seed=0)
         print(f"Day {obs.observation.day}/{obs.observation.max_days} | Tasks: {len(obs.observation.tasks)} | Workers: {obs.observation.workers_available}/{obs.observation.total_workers}")
         print(f"Weather: {obs.observation.weather} | Budget used: {obs.observation.budget_used:.1%}")
@@ -100,10 +99,8 @@ def test_worker_reset():
 
         # Step 2: do nothing — workers should be freed from tasks; global absences may reduce total
         obs = env.step(ConstructionAction(action_type="do_nothing"))
-        # Verify no task still has assigned workers
         tasks_ok = all(t.assigned_workers == 0 for t in obs.observation.tasks)
         assert tasks_ok, "Assigned workers should be released from tasks each step"
-        # workers_available may be reduced by random worker absence events; ensure it's within valid bounds
         assert 0 <= obs.observation.workers_available <= total, (
             f"Workers available should be between 0 and {total}, got {obs.observation.workers_available}"
         )
@@ -116,79 +113,4 @@ if __name__ == "__main__":
     test_all_difficulties()
     test_material_order()
     test_worker_reset()
-    # New: run reward visibility test to observe per-step rewards
-    def test_reward_signal(seed: int = 0, steps: int = 20):
-        print("\n=== Testing Reward Signal (random actions) ===")
-        random.seed(seed)
-        with ConstructionEnv(base_url=BASE_URL).sync() as env:
-            obs = env.reset(difficulty="easy")
-            seen_nonzero = False
-            for i in range(steps):
-                # pick a simple action: try allocate a worker to a pending task when possible
-                target = None
-                for t in obs.observation.tasks:
-                    if not t.blocked and t.progress < 1.0 and t.assigned_workers < t.required_workers:
-                        target = t
-                        break
-
-                if target and random.random() < 0.8:
-                    action = ConstructionAction(action_type="allocate_workers", task_id=target.task_id, worker_count=1)
-                elif random.random() < 0.4:
-                    action = ConstructionAction(action_type="order_material", material_type="cement", quantity=10.0)
-                else:
-                    action = ConstructionAction(action_type="do_nothing")
-
-                obs = env.step(action)
-                r = obs.reward or 0
-                print(f"Step {i+1:02d} | Day {obs.observation.day:02d} | Reward: {r:.3f}")
-                if r != 0:
-                    seen_nonzero = True
-
-            if seen_nonzero:
-                print("  ✅ Observed non-zero rewards during the run.")
-            else:
-                print("  ⚠️ No non-zero rewards observed in this run.")
-
-    test_reward_signal()
-    
-    # Inspect internal reward components by monkey-patching `_compute_reward`
-    def test_reward_inspect():
-        print("\n=== Inspecting Reward Components (direct env) ===")
-        from server.construction_env_environment import ConstructionEnvironment
-
-        env = ConstructionEnvironment()
-        env.reset(difficulty="easy")
-
-        # wrapper to log inputs to _compute_reward
-        orig_compute = env._compute_reward
-
-        def wrapped_compute(progress_gain, weather, bad_action, budget_ratio, day):
-            print(f"  [DEBUG] progress_gain={progress_gain:.4f}, weather={weather}, bad_action={bad_action}, budget_ratio={budget_ratio:.4f}, day={day}")
-            r = orig_compute(progress_gain, weather, bad_action, budget_ratio, day)
-            print(f"  [DEBUG] computed reward (clipped) = {r:.4f}")
-            return r
-
-        env._compute_reward = wrapped_compute
-
-        # Take a series of greedy steps allocating all workers to first available task
-        obs = env.reset(difficulty="easy")
-        for i in range(6):
-            # find first eligible task id
-            target_id = None
-            for t in env._task_module.tasks.values():
-                if not t.blocked and t.true_progress < 1.0 and t.assigned_workers < t.required_workers:
-                    target_id = t.task_id
-                    break
-
-            if target_id is not None:
-                action = ConstructionAction(action_type="allocate_workers", task_id=target_id, worker_count=env._workforce_module.total_workers)
-            else:
-                action = ConstructionAction(action_type="do_nothing")
-
-            obs = env.step(action)
-            print(f"Step {i+1} | Day {obs.day} | reward={obs.reward:.4f} | total_cost={env._state.total_cost:.2f}")
-
-        print("  ✅ Reward inspection complete.")
-
-    test_reward_inspect()
     print("\n🎉 All tests passed!")

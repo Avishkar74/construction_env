@@ -26,7 +26,7 @@ def print_tasks(tasks: List):
 
 def client_demo(steps: int, difficulty: str, seed: int, verbose: bool = True):
     print(f"\n=== CLIENT DEMO (difficulty={difficulty}, steps={steps}, seed={seed}) ===")
-    with ConstructionEnv(base_url="http://localhost:8000").sync() as env:
+    with ConstructionEnv(base_url="https://avishkar-00-construction-env.hf.space").sync() as env:
         obs = env.reset(difficulty=difficulty)
         print("Initial observation (client):")
         print(f"  day={obs.observation.day} / max_days={obs.observation.max_days}")
