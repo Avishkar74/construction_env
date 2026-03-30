@@ -61,23 +61,52 @@ class ConstructionObservation(Observation):
 # ACTION
 # ──────────────────────────────────────────────
 
-class ConstructionAction(Action):
-    """One decision the agent makes per step (one day)."""
+class Allocation(BaseModel):
+    task_id: int
+    worker_count: int
+
+
+class ActionStep(BaseModel):
     action_type: Literal[
-        "allocate_workers",      # assign N workers to a task
-        "order_material",        # place a supply order
-        "approve_overtime",      # extend working hours for a task
-        "reschedule_task",       # move a task's planned start day
-        "do_nothing",            # skip action (always valid)
-        "request_pm_guidance",   # ask the senior PM for advice (costs 1 step of delay)
+        "allocate_workers",       # assign N workers to a task
+        "allocate_workers_batch", # assign workers to multiple tasks
+        "order_material",         # place a supply order
+        "approve_overtime",       # extend working hours for a task
+        "reschedule_task",        # move a task's planned start day
+        "do_nothing",             # skip action (always valid)
+        "request_pm_guidance",    # ask the senior PM for advice (costs 1 step of delay)
     ]
     task_id: Optional[int] = None
     worker_count: Optional[int] = None
+    allocations: Optional[List[Allocation]] = None
     new_start_day: Optional[int] = None
     material_type: Optional[str] = None
     quantity: Optional[float] = None
     overtime_hours: Optional[int] = None
     message: Optional[str] = None
+
+
+class ConstructionAction(Action):
+    """One decision the agent makes per step (one day)."""
+    action_type: Literal[
+        "allocate_workers",       # assign N workers to a task
+        "allocate_workers_batch", # assign workers to multiple tasks
+        "order_material",         # place a supply order
+        "approve_overtime",       # extend working hours for a task
+        "reschedule_task",        # move a task's planned start day
+        "do_nothing",             # skip action (always valid)
+        "request_pm_guidance",    # ask the senior PM for advice (costs 1 step of delay)
+        "multi_action",           # execute a dynamic list of actions
+    ]
+    task_id: Optional[int] = None
+    worker_count: Optional[int] = None
+    allocations: Optional[List[Allocation]] = None
+    new_start_day: Optional[int] = None
+    material_type: Optional[str] = None
+    quantity: Optional[float] = None
+    overtime_hours: Optional[int] = None
+    message: Optional[str] = None
+    actions: Optional[List[ActionStep]] = None
 
 
 # ──────────────────────────────────────────────

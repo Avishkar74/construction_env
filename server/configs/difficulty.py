@@ -41,31 +41,31 @@ def get_task_config(difficulty: str) -> List[Dict[str, Any]]:
     medium = easy + [
         {
             "task_id": 6, "title": "Electrical Rough-In", "description": "Install wiring conduits",
-            "planned_start": 20, "planned_end": 30, "dependencies": [3],
+            "planned_start": 14, "planned_end": 26, "dependencies": [2],
             "required_workers": 3, "required_materials": {},
             "is_critical_path": False, "priority": "high",
         },
         {
             "task_id": 7, "title": "Plumbing", "description": "Install pipes and drainage",
-            "planned_start": 20, "planned_end": 32, "dependencies": [3],
+            "planned_start": 14, "planned_end": 28, "dependencies": [2],
             "required_workers": 3, "required_materials": {},
             "is_critical_path": False, "priority": "medium",
         },
         {
             "task_id": 8, "title": "Windows & Doors", "description": "Install frames and fixtures",
-            "planned_start": 28, "planned_end": 36, "dependencies": [4],
+            "planned_start": 22, "planned_end": 32, "dependencies": [3],
             "required_workers": 3, "required_materials": {},
             "is_critical_path": False, "priority": "medium",
         },
         {
             "task_id": 9, "title": "Electrical Fitting", "description": "Install switches, sockets, panels",
-            "planned_start": 36, "planned_end": 44, "dependencies": [6, 8],
+            "planned_start": 30, "planned_end": 40, "dependencies": [6, 7],
             "required_workers": 2, "required_materials": {},
             "is_critical_path": False, "priority": "high",
         },
         {
             "task_id": 10, "title": "Final Inspection", "description": "Walkthrough and punch-list",
-            "planned_start": 45, "planned_end": 50, "dependencies": [5, 7, 9],
+            "planned_start": 42, "planned_end": 50, "dependencies": [4, 5, 7, 9],
             "required_workers": 2, "required_materials": {},
             "is_critical_path": True, "priority": "critical",
         },
@@ -75,13 +75,13 @@ def get_task_config(difficulty: str) -> List[Dict[str, Any]]:
     hard = medium + [
         {
             "task_id": 11, "title": "HVAC Installation", "description": "Heating and cooling systems",
-            "planned_start": 25, "planned_end": 38, "dependencies": [3],
+            "planned_start": 22, "planned_end": 36, "dependencies": [2],
             "required_workers": 3, "required_materials": {},
             "is_critical_path": False, "priority": "high",
         },
         {
             "task_id": 12, "title": "Insulation", "description": "Wall and roof insulation",
-            "planned_start": 30, "planned_end": 38, "dependencies": [4, 6],
+            "planned_start": 28, "planned_end": 38, "dependencies": [4],
             "required_workers": 2, "required_materials": {},
             "is_critical_path": False, "priority": "medium",
         },

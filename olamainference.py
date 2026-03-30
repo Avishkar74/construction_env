@@ -25,12 +25,19 @@ from policies.strategy_v4 import reset_policy_state as reset_policy_state_v4
 from policies.strategy_v4 import smart_policy as smart_policy_v4
 from policies.strategy_v5 import reset_policy_state as reset_policy_state_v5
 from policies.strategy_v5 import smart_policy as smart_policy_v5
+from policies.strategy_v6 import reset_policy_state as reset_policy_state_v6
+from policies.strategy_v6 import smart_policy as smart_policy_v6
+from policies.strategy_v7 import reset_policy_state as reset_policy_state_v7
+from policies.strategy_v7 import smart_policy as smart_policy_v7
+from policies.strategy_scheduler_test import reset_policy_state as reset_policy_state_sched
+from policies.strategy_scheduler_test import smart_policy as smart_policy_sched
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:7b")
 DIFFICULTY = os.getenv("DIFFICULTY", "medium")
 MAX_STEPS = int(os.getenv("MAX_STEPS", "60"))
-ENV_BASE_URL = os.getenv("ENV_BASE_URL", "https://avishkar-00-construction-env.hf.space")
-STRATEGY_VERSION = os.getenv("STRATEGY_VERSION", "v5").lower()
+ENV_BASE_URL = os.getenv("ENV_BASE_URL", "http://localhost:8000")
+STRATEGY_VERSION = os.getenv("STRATEGY_VERSION", "v7").lower()
+DEBUG_STEPS = os.getenv("DEBUG_STEPS", "0").lower() in ("0", "true", "yes")
 
 
 def _get_strategy_fns():
@@ -40,6 +47,12 @@ def _get_strategy_fns():
         return reset_policy_state_v2_1, smart_policy_v2_1
     if STRATEGY_VERSION == "v5":
         return reset_policy_state_v5, smart_policy_v5
+    if STRATEGY_VERSION == "v6":
+        return reset_policy_state_v6, smart_policy_v6
+    if STRATEGY_VERSION == "v7":
+        return reset_policy_state_v7, smart_policy_v7
+    if STRATEGY_VERSION in ("sched", "scheduler", "scheduler_test"):
+        return reset_policy_state_sched, smart_policy_sched
     if STRATEGY_VERSION == "v4":
         return reset_policy_state_v4, smart_policy_v4
     if STRATEGY_VERSION == "v3":
@@ -54,6 +67,8 @@ def main() -> None:
     steps = 0
     action_counts = {
         "allocate_workers": 0,
+        "allocate_workers_batch": 0,
+        "multi_action": 0,
         "order_material": 0,
         "reschedule_task": 0,
         "approve_overtime": 0,
@@ -78,6 +93,24 @@ def main() -> None:
             reward = result.reward or 0.0
             cumulative_reward += reward
             reward_components = result.observation.reward_components or {}
+            if DEBUG_STEPS:
+                allocations_count = len(action.allocations or []) if hasattr(action, "allocations") else 0
+                progress_after = sum(float(t.progress) for t in result.observation.tasks)
+                progress_delta = progress_after - progress_before
+                line = (
+                    f"Day {result.observation.day:2d} | {action.action_type:22s} | "
+                    f"task_id={action.task_id} | allocations={allocations_count} | "
+                    f"workers={result.observation.workers_available}/{result.observation.total_workers} | "
+                    f"delta={progress_delta:.3f}"
+                )
+                print(line)
+                if action.action_type == "multi_action" and action.actions:
+                    for sub in action.actions:
+                        sub_allocs = len(sub.allocations or []) if hasattr(sub, "allocations") else 0
+                        print(
+                            f"  - {sub.action_type} | task_id={sub.task_id} | "
+                            f"allocations={sub_allocs} | qty={sub.quantity} | start={sub.new_start_day}"
+                        )
             if reward_components:
                 steps_with_reward_components += 1
             for name, value in reward_components.items():

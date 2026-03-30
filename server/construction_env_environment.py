@@ -9,6 +9,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from typing import Dict, List, Literal, Optional
+import math
 from openenv.core.env_server import Environment
 
 from models import (
@@ -93,6 +94,75 @@ class ConstructionEnvironment(Environment):
     # STEP
     # ──────────────────────────────────────────
 
+    def _compute_dynamic_allocations(self, obs: ConstructionObservation) -> list[dict]:
+        workers = obs.workers_available
+
+        tasks = [
+            t for t in obs.tasks
+            if (not t.blocked) and t.progress < 1.0
+        ]
+
+        if not tasks or workers <= 0:
+            return []
+
+        def task_score(t: TaskObservation) -> float:
+            score = 0.0
+            if t.priority == "critical":
+                score += 100.0
+            elif t.priority == "high":
+                score += 70.0
+            elif t.priority == "medium":
+                score += 40.0
+
+            remaining = (1.0 - t.progress) * max(1, t.required_workers)
+            score += remaining * 10.0
+            score += max(0, t.days_behind_schedule) * 50.0
+            if t.progress > 0.6:
+                score += 80.0
+            return score
+
+        tasks.sort(key=task_score, reverse=True)
+
+        allocations: list[dict] = []
+        for t in tasks:
+            if workers <= 0:
+                break
+
+            min_needed = max(1, t.required_workers)
+            if workers < min_needed:
+                continue
+
+            assign = min(workers, min_needed)
+            if t.progress > 0.7:
+                assign = workers
+
+            allocations.append({
+                "task_id": t.task_id,
+                "worker_count": assign,
+            })
+            workers -= assign
+
+        return allocations
+
+    def _materials_arriving_soon(self, task: Task, current_day: int, horizon_days: int = 5) -> bool:
+        for mat, amount_per_10pct in task.required_materials.items():
+            if self._material_module.inventory.get(mat, 0.0) >= amount_per_10pct * 0.1:
+                continue
+            arrival = next((o.arrival_day for o in self._state.pending_orders if o.material_type == mat), None)
+            if arrival is None or arrival > current_day + horizon_days:
+                return False
+        return True
+
+    def _auto_reschedule_ready_tasks(self, current_day: int) -> None:
+        for task in self._task_module.tasks.values():
+            if task.true_progress >= 1.0:
+                continue
+            if current_day >= task.planned_start:
+                continue
+            if not task.is_unblocked(self._task_module.tasks):
+                continue
+            task.planned_start = current_day
+
     def step(
         self,
         action: ConstructionAction,
@@ -129,45 +199,100 @@ class ConstructionEnvironment(Environment):
         step_cost += self._workforce_module.daily_labor_cost(
             min(self._workers_available, self._workforce_module.total_workers)
         )
+        budget_ratio = self._state.total_cost / max(1, self._state.total_budget)
+
+        # Background reschedule for dependency-ready tasks
+        self._auto_reschedule_ready_tasks(day)
 
         bad_action = False
-        if action.action_type == "allocate_workers" and action.task_id is not None:
-            task = self._task_module.tasks.get(action.task_id)
-            if task and task.blocked:
-                bad_action = True   # penalize allocating to a blocked task
-            allocated = self._task_module.assign_workers(
-                action.task_id,
-                action.worker_count or 0,
-                self._workers_available,
-            )
-            self._workers_available -= allocated
+        actions_to_apply = []
+        if action.action_type == "multi_action" and action.actions:
+            actions_to_apply = list(action.actions)
+        else:
+            actions_to_apply = [action]
 
-        elif action.action_type == "order_material" and action.material_type:
+        order_actions = [a for a in actions_to_apply if a.action_type == "order_material" and a.material_type]
+        reschedule_actions = [a for a in actions_to_apply if a.action_type == "reschedule_task" and a.task_id is not None]
+        overtime_actions = [a for a in actions_to_apply if a.action_type == "approve_overtime" and a.task_id is not None]
+        allocation_actions = [a for a in actions_to_apply if a.action_type in ("allocate_workers", "allocate_workers_batch")]
+
+        for a in order_actions:
             order = self._material_module.place_order(
-                action.material_type,
-                action.quantity or 10.0,
+                a.material_type,
+                a.quantity or 10.0,
                 day,
                 self._state.difficulty,
             )
             self._state.pending_orders.append(order)
             step_cost += order.cost
 
-        elif action.action_type == "approve_overtime" and action.task_id is not None:
-            hours = action.overtime_hours or 2
+        for a in reschedule_actions:
+            task = self._task_module.tasks.get(a.task_id)
+            if task and a.new_start_day:
+                task.planned_start = a.new_start_day
+
+        for a in overtime_actions:
+            hours = a.overtime_hours or 2
             self._workforce_module.apply_overtime(hours)
             step_cost += self._workforce_module.overtime_cost(hours)
-            # Re-assign all available workers with overtime boost to this task
-            allocated = self._task_module.assign_workers(
-                action.task_id,
-                self._workers_available,
-                self._workers_available,
-            )
-            self._workers_available -= allocated
 
-        elif action.action_type == "reschedule_task" and action.task_id is not None:
-            task = self._task_module.tasks.get(action.task_id)
-            if task and action.new_start_day:
-                task.planned_start = action.new_start_day
+        if not allocation_actions and order_actions:
+            allocation_actions = [ConstructionAction(action_type="allocate_workers")]
+
+        for a in allocation_actions:
+            allocations: list[dict] = []
+            if a.action_type == "allocate_workers_batch" and a.allocations:
+                allocations = [
+                    {"task_id": alloc.task_id, "worker_count": alloc.worker_count}
+                    for alloc in a.allocations
+                ]
+            elif a.action_type == "allocate_workers" and a.task_id is not None:
+                allocations = [
+                    {"task_id": a.task_id, "worker_count": a.worker_count or 0}
+                ]
+            else:
+                current_obs = self._build_observation(done=False, reward=0.0)
+                allocations = self._compute_dynamic_allocations(current_obs)
+
+            for alloc in allocations:
+                if self._workers_available <= 0:
+                    break
+                task_id = int(alloc.get("task_id", -1))
+                worker_count = max(0, int(alloc.get("worker_count", 0)))
+                task = self._task_module.tasks.get(task_id)
+                if task is None or task.blocked or task.true_progress >= 1.0:
+                    continue
+                if worker_count <= 0:
+                    continue
+
+                base_cap = max(1, task.required_workers)
+                if budget_ratio < 0.8:
+                    cap_mult = 1.5
+                elif budget_ratio < 0.9:
+                    cap_mult = 1.2
+                else:
+                    cap_mult = 1.0
+
+                if task.true_progress >= 0.7:
+                    cap_mult = max(cap_mult, 1.2)
+
+                cap = math.ceil(base_cap * cap_mult)
+
+                if worker_count < base_cap:
+                    continue
+                worker_count = min(worker_count, cap, self._workers_available)
+
+                allocated = self._task_module.assign_workers(
+                    task_id,
+                    worker_count,
+                    self._workers_available,
+                )
+                self._workers_available -= allocated
+
+            if a.action_type == "allocate_workers" and a.task_id is not None:
+                task = self._task_module.tasks.get(a.task_id)
+                if task and task.blocked:
+                    bad_action = True   # penalize allocating to a blocked task
 
         # ── 3. Process material deliveries (removes delivered orders) ──
         self._state.pending_orders = self._material_module.process_deliveries(
@@ -180,6 +305,7 @@ class ConstructionEnvironment(Environment):
             weather_modifier=weather_modifier,
             efficiency=self._workforce_module.efficiency,
             materials_available=self._material_module.inventory,
+            pending_orders=list(self._state.pending_orders),
         )
 
         # ── 5. Sync true_task_progress into state ──

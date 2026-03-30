@@ -54,6 +54,9 @@ class Task:
         weather_modifier: float,
         efficiency: float,
         materials_available: Dict[str, float],
+        pending_orders: List["MaterialOrder"],
+        prep_horizon_days: int = 5,
+        prep_progress_cap: float = 0.1,
     ) -> float:
         """Returns progress gained this step. Also consumes materials."""
         # Dependency check
@@ -75,12 +78,23 @@ class Task:
                 self.status = "in_progress"
             return 0.0
 
-        # Check materials available
+        # Check materials available or arriving soon (prep work allowed).
+        missing_now = []
         for mat, amount_per_10pct in self.required_materials.items():
             if materials_available.get(mat, 0) < amount_per_10pct * 0.1:
-                self.blocked = True
-                self.status = "blocked"
-                return 0.0
+                missing_now.append(mat)
+
+        if missing_now:
+            arrivals = {o.material_type: o.arrival_day for o in pending_orders}
+            for mat in list(missing_now):
+                arrival_day = arrivals.get(mat)
+                if arrival_day is not None and arrival_day <= current_day + prep_horizon_days:
+                    missing_now.remove(mat)
+
+        if missing_now:
+            self.blocked = True
+            self.status = "blocked"
+            return 0.0
 
         # Compute progress gain
         # Base: 0.02 per worker per day, scaled by efficiency and weather
@@ -89,11 +103,16 @@ class Task:
         gain = max(0.0, gain)
 
         old_progress = self.true_progress
-        self.true_progress = min(1.0, self.true_progress + gain)
+        if missing_now:
+            # Allow limited prep work before materials arrive.
+            prep_limit = min(1.0, prep_progress_cap)
+            self.true_progress = min(prep_limit, self.true_progress + gain)
+        else:
+            self.true_progress = min(1.0, self.true_progress + gain)
         actual_gain = self.true_progress - old_progress
 
         # Consume materials proportional to progress gain
-        if actual_gain > 0:
+        if actual_gain > 0 and not missing_now:
             for mat, amount_per_10pct in self.required_materials.items():
                 consume = amount_per_10pct * (actual_gain / 0.1)
                 materials_available[mat] = max(0.0, materials_available.get(mat, 0) - consume)
@@ -136,11 +155,17 @@ class TaskModule:
         weather_modifier: float,
         efficiency: float,
         materials_available: Dict[str, float],
+        pending_orders: List["MaterialOrder"],
     ) -> float:
         total_gain = 0.0
         for task in self.tasks.values():
             gain = task.update_progress(
-                current_day, self.tasks, weather_modifier, efficiency, materials_available
+                current_day,
+                self.tasks,
+                weather_modifier,
+                efficiency,
+                materials_available,
+                pending_orders,
             )
             total_gain += gain
         return total_gain

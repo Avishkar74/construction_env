@@ -26,7 +26,7 @@ from models import ConstructionAction
 
 API_BASE_URL = os.getenv("API_BASE_URL", "https://router.huggingface.co/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "deepseek-ai/DeepSeek-V3.2-Exp")
-HF_TOKEN = os.getenv("HF_TOKEN", "REMOVED")
+HF_TOKEN = os.getenv("HF_TOKEN")
 
 ENV_BASE_URL = os.getenv("ENV_BASE_URL", "https://avishkar-00-construction-env.hf.space")
 DIFFICULTY = os.getenv("DIFFICULTY", "medium")
