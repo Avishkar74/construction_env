@@ -53,3 +53,35 @@ class EventModule:
                 equipment_health[equip] = max(0.1, equipment_health[equip] - 0.2)
                 issues.append(f"equipment_degraded:{equip}")
         return equipment_health, issues
+
+    def roll_material_delivery_delay(self, pending_orders: List) -> Tuple[List, List[str]]:
+        issues = []
+        prob = {"easy": 0.03, "medium": 0.08, "hard": 0.15}[self.difficulty]
+        updated_orders = []
+        for order in pending_orders:
+            if random.random() < prob:
+                extra_days = random.randint(1, 3)
+                order.arrival_day += extra_days
+                issues.append(f"material_delay:{order.material_type}:{extra_days}d")
+            updated_orders.append(order)
+        return updated_orders, issues
+
+    def roll_quality_rework(self, tasks: Dict[int, "Task"]) -> Tuple[Dict[int, "Task"], List[str]]:
+        issues = []
+        prob = {"easy": 0.02, "medium": 0.05, "hard": 0.10}[self.difficulty]
+        for task in tasks.values():
+            if 0.3 < task.true_progress < 0.9 and random.random() < prob:
+                setback = random.uniform(0.05, 0.15)
+                task.true_progress = max(0.0, task.true_progress - setback)
+                task.rework_count += 1
+                issues.append(f"rework:{task.task_id}:{setback:.2f}")
+        return tasks, issues
+
+    def roll_price_escalation(self, material_costs: Dict[str, float]) -> Tuple[Dict[str, float], List[str]]:
+        issues = []
+        if self.difficulty == "hard" and random.random() < 0.05:
+            mat = random.choice(["steel", "cement"])
+            spike = random.uniform(1.05, 1.20)
+            material_costs[mat] = material_costs.get(mat, 1.0) * spike
+            issues.append(f"price_spike:{mat}:{spike:.2f}x")
+        return material_costs, issues

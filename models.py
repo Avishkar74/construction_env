@@ -26,6 +26,9 @@ class TaskObservation(BaseModel):
     assigned_workers: int
     required_materials: Dict[str, float]   # {"cement": 5.0}
     days_behind_schedule: int          # 0 if on time or not started
+    estimated_completion_day: Optional[int] = None
+    worker_hours_logged: float = 0.0
+    rework_count: int = 0
 
 
 # ──────────────────────────────────────────────
@@ -55,6 +58,14 @@ class ConstructionObservation(Observation):
     chat_messages: List[str]               # contextual PM advisor messages
     difficulty: Literal["easy", "medium", "hard"]
     reward_components: Optional[Dict[str, float]] = None
+    equipment_health: Dict[str, float] = Field(default_factory=dict)
+    critical_path_tasks: List[int] = Field(default_factory=list)
+    days_remaining: int = 0
+    overall_progress: float = 0.0
+    idle_workers_ratio: float = 0.0
+    overtime_hours: float = 0.0
+    material_waste: float = 0.0
+    delay_penalty: float = 0.0
 
 
 # ──────────────────────────────────────────────
@@ -150,6 +161,18 @@ class ConstructionState(State):
 
     # Delay tracking
     total_delay_days: int = 0
+
+    # KPI tracking
+    last_action_count: int = 0
+    last_overtime_hours: float = 0.0
+    last_material_waste: float = 0.0
+    cumulative_overtime_hours: float = 0.0
+    cumulative_idle_workers: int = 0
+    cumulative_material_waste: float = 0.0
+    cumulative_action_count: int = 0
+    cumulative_multi_action_count: int = 0
+    cumulative_bad_action_count: int = 0
+    cumulative_zero_progress_days: int = 0
 
     # Weather for this step (set once per step, used everywhere)
     current_weather: Literal["clear", "rain", "storm"] = "clear"

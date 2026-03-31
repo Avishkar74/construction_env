@@ -78,4 +78,21 @@ class ChatModule:
                     "Client update: Accelerate exterior work regardless of weather — deadline is firm."
                 )
 
-        return messages[:3] if messages else ["Project status nominal. Continue current allocation."]
+        structured_hints = []
+        behind_critical = [
+            t for t in tasks.values()
+            if t.is_critical_path and t.days_behind(current_day) > 0
+        ]
+        if behind_critical:
+            task_ids = ",".join(str(t.task_id) for t in behind_critical[:3])
+            structured_hints.append(f"ACTION_HINT: prioritize_tasks:{task_ids}")
+
+        if critical_low:
+            structured_hints.append(
+                f"ACTION_HINT: order_materials:{','.join(critical_low)}"
+            )
+
+        combined = messages + structured_hints
+        if not combined:
+            combined = ["Project status nominal. Continue current allocation."]
+        return combined[:4]

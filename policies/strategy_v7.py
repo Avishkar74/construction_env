@@ -94,6 +94,8 @@ def _task_score(t: Any) -> float:
     score += max(0, t.days_behind_schedule) * 50.0
     if t.progress > 0.6:
         score += 80.0
+    if t.assigned_workers >= t.required_workers * 1.5:
+        score -= 30.0
     return score
 
 
@@ -191,7 +193,7 @@ def _handle_just_in_time_materials(obs: Any) -> list[ActionStep]:
     return actions
 
 
-def _prefetch_near_unlock_materials(obs: Any) -> list[ActionStep]:
+def _prefetch_near_unlock_materials(obs: Any, lookahead_days: int = 7) -> list[ActionStep]:
     tasks = _tasks_by_id(obs)
     shortages: dict[str, float] = {}
 
@@ -199,18 +201,22 @@ def _prefetch_near_unlock_materials(obs: Any) -> list[ActionStep]:
         if t.progress >= 1.0:
             continue
 
-        unmet = []
-        for dep_id in t.dependencies:
-            dep = tasks.get(dep_id)
-            if dep is None or dep.progress < 1.0:
-                unmet.append(dep)
+        unmet = [
+            tasks.get(dep_id)
+            for dep_id in t.dependencies
+            if tasks.get(dep_id) is None or tasks[dep_id].progress < 1.0
+        ]
 
-        near_unlock = False
-        if len(unmet) == 0:
-            near_unlock = True
-        elif len(unmet) == 1 and unmet[0] is not None and unmet[0].progress >= 0.6:
-            near_unlock = True
+        unlock_in_days = 999.0
+        for dep in unmet:
+            if dep is None:
+                continue
+            remaining = 1.0 - dep.progress
+            dep_workers = max(1, dep.assigned_workers)
+            est_days = remaining / (0.02 * (dep_workers ** 0.85))
+            unlock_in_days = min(unlock_in_days, est_days)
 
+        near_unlock = (not unmet) or (unlock_in_days <= lookahead_days)
         if not near_unlock:
             continue
 
@@ -279,13 +285,12 @@ def smart_policy(obs: Any) -> ConstructionAction:
 
     if obs.overtime_fatigue_level < 0.25:
         tasks = _ready_tasks(obs)
-        if tasks:
-            tasks.sort(key=_task_score, reverse=True)
-            top = tasks[0]
-            if top.is_critical_path and top.days_behind_schedule >= 3:
+        tasks.sort(key=_task_score, reverse=True)
+        for t in tasks[:2]:
+            if t.is_critical_path and t.days_behind_schedule >= 2:
                 actions.append(ActionStep(
                     action_type="approve_overtime",
-                    task_id=top.task_id,
+                    task_id=t.task_id,
                     overtime_hours=2,
                 ))
 

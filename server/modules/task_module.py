@@ -4,6 +4,31 @@ from typing import Dict, List, Optional
 import random
 
 
+OUTDOOR_TASKS = {
+    "Site Preparation",
+    "Foundation",
+    "Excavation",
+    "Walls",
+    "Roof",
+    "Plastering",
+    "Landscaping",
+}
+
+CONCRETE_TASKS = {
+    "Foundation",
+    "Structural Framing",
+    "Walls",
+}
+
+EQUIPMENT_DEPENDENT_TASKS = {
+    "Site Preparation": "excavator",
+    "Foundation": "excavator",
+    "Structural Framing": "crane",
+    "Walls": "crane",
+    "Roof": "crane",
+}
+
+
 class Task:
     def __init__(
         self,
@@ -36,6 +61,8 @@ class Task:
         self.status: str = "not_started"
         self.actual_start: Optional[int] = None
         self.actual_end: Optional[int] = None
+        self.worker_hours_logged: float = 0.0
+        self.rework_count: int = 0
 
     def is_unblocked(self, all_tasks: Dict[int, "Task"]) -> bool:
         return all(all_tasks[d].true_progress >= 1.0 for d in self.dependencies)
@@ -52,9 +79,12 @@ class Task:
         current_day: int,
         all_tasks: Dict[int, "Task"],
         weather_modifier: float,
+        weather: str,
         efficiency: float,
         materials_available: Dict[str, float],
         pending_orders: List["MaterialOrder"],
+        equipment_health: Optional[Dict[str, float]] = None,
+        cement_quality: float = 1.0,
         prep_horizon_days: int = 5,
         prep_progress_cap: float = 0.1,
     ) -> float:
@@ -79,31 +109,55 @@ class Task:
             return 0.0
 
         # Check materials available or arriving soon (prep work allowed).
-        missing_now = []
+        blocking_missing: List[str] = []
+        arriving_missing: List[str] = []
         for mat, amount_per_10pct in self.required_materials.items():
-            if materials_available.get(mat, 0) < amount_per_10pct * 0.1:
-                missing_now.append(mat)
+            if materials_available.get(mat, 0) >= amount_per_10pct * 0.1:
+                continue
+            arrivals = [
+                o.arrival_day
+                for o in pending_orders
+                if o.material_type == mat
+            ]
+            if arrivals and min(arrivals) <= current_day + prep_horizon_days:
+                arriving_missing.append(mat)
+            else:
+                blocking_missing.append(mat)
 
-        if missing_now:
-            arrivals = {o.material_type: o.arrival_day for o in pending_orders}
-            for mat in list(missing_now):
-                arrival_day = arrivals.get(mat)
-                if arrival_day is not None and arrival_day <= current_day + prep_horizon_days:
-                    missing_now.remove(mat)
-
-        if missing_now:
+        if blocking_missing:
             self.blocked = True
             self.status = "blocked"
             return 0.0
 
         # Compute progress gain
-        # Base: 0.02 per worker per day, scaled by efficiency and weather
-        base_gain = 0.02 * self.assigned_workers
-        gain = base_gain * efficiency * weather_modifier
+        n_opt = max(1, self.required_workers)
+        above_opt = max(0, self.assigned_workers - n_opt)
+        crowd_factor = max(0.4, 1.0 - (0.10 * above_opt))
+        effective_workers = min(self.assigned_workers, n_opt) + (above_opt * crowd_factor)
+        base_gain = 0.02 * effective_workers
+
+        if self.title in CONCRETE_TASKS and weather in ("rain", "storm"):
+            effective_weather = 0.0
+        elif self.title not in OUTDOOR_TASKS:
+            effective_weather = 1.0
+        else:
+            effective_weather = weather_modifier
+
+        equip_modifier = 1.0
+        if equipment_health:
+            equip_key = EQUIPMENT_DEPENDENT_TASKS.get(self.title)
+            if equip_key:
+                equip_modifier = max(0.4, equipment_health.get(equip_key, 1.0))
+
+        cement_factor = max(0.0, min(1.0, cement_quality))
+        if "cement" not in self.required_materials:
+            cement_factor = 1.0
+
+        gain = base_gain * efficiency * effective_weather * equip_modifier * cement_factor
         gain = max(0.0, gain)
 
         old_progress = self.true_progress
-        if missing_now:
+        if arriving_missing:
             # Allow limited prep work before materials arrive.
             prep_limit = min(1.0, prep_progress_cap)
             self.true_progress = min(prep_limit, self.true_progress + gain)
@@ -111,8 +165,11 @@ class Task:
             self.true_progress = min(1.0, self.true_progress + gain)
         actual_gain = self.true_progress - old_progress
 
+        if actual_gain > 0:
+            self.worker_hours_logged += self.assigned_workers * 8.0
+
         # Consume materials proportional to progress gain
-        if actual_gain > 0 and not missing_now:
+        if actual_gain > 0 and not arriving_missing:
             for mat, amount_per_10pct in self.required_materials.items():
                 consume = amount_per_10pct * (actual_gain / 0.1)
                 materials_available[mat] = max(0.0, materials_available.get(mat, 0) - consume)
@@ -153,9 +210,12 @@ class TaskModule:
         self,
         current_day: int,
         weather_modifier: float,
+        weather: str,
         efficiency: float,
         materials_available: Dict[str, float],
         pending_orders: List["MaterialOrder"],
+        equipment_health: Optional[Dict[str, float]] = None,
+        cement_quality: float = 1.0,
     ) -> float:
         total_gain = 0.0
         for task in self.tasks.values():
@@ -163,9 +223,12 @@ class TaskModule:
                 current_day,
                 self.tasks,
                 weather_modifier,
+                weather,
                 efficiency,
                 materials_available,
                 pending_orders,
+                equipment_health,
+                cement_quality,
             )
             total_gain += gain
         return total_gain

@@ -76,19 +76,19 @@ def get_task_config(difficulty: str) -> List[Dict[str, Any]]:
         {
             "task_id": 11, "title": "HVAC Installation", "description": "Heating and cooling systems",
             "planned_start": 22, "planned_end": 36, "dependencies": [2],
-            "required_workers": 3, "required_materials": {},
+            "required_workers": 3, "required_materials": {"steel": 5},
             "is_critical_path": False, "priority": "high",
         },
         {
             "task_id": 12, "title": "Insulation", "description": "Wall and roof insulation",
             "planned_start": 28, "planned_end": 38, "dependencies": [4],
-            "required_workers": 2, "required_materials": {},
+            "required_workers": 2, "required_materials": {"timber": 8},
             "is_critical_path": False, "priority": "medium",
         },
         {
             "task_id": 13, "title": "Flooring", "description": "Tile and floor finishing",
             "planned_start": 38, "planned_end": 46, "dependencies": [7, 12],
-            "required_workers": 3, "required_materials": {},
+            "required_workers": 3, "required_materials": {"cement": 3},
             "is_critical_path": False, "priority": "medium",
         },
         {
@@ -131,19 +131,33 @@ DIFFICULTY_SETTINGS = {
     "easy": {
         "total_workers": 20,
         "total_budget": 800_000.0,
-        "max_days": 50,
+        "max_days": 180,
         "starting_materials": {"cement": 200, "steel": 100, "bricks": 500, "timber": 80, "paint": 60},
     },
     "medium": {
         "total_workers": 15,
         "total_budget": 600_000.0,
-        "max_days": 60,
-        "starting_materials": {"cement": 120, "steel": 60, "bricks": 300, "timber": 50, "paint": 40},
+        "max_days": 180,
+        "starting_materials": {
+            "cement": 120,
+            "steel": 60,
+            "bricks": 300,
+            "timber": 50,
+            "paint": 40,
+            "tiles": 0,
+        },
     },
     "hard": {
         "total_workers": 12,
         "total_budget": 450_000.0,
-        "max_days": 65,
-        "starting_materials": {"cement": 80, "steel": 40, "bricks": 200, "timber": 30, "paint": 20},
+        "max_days": 180,
+        "starting_materials": {
+            "cement": 80,
+            "steel": 40,
+            "bricks": 200,
+            "timber": 30,
+            "paint": 20,
+            "tiles": 0,
+        },
     },
 }

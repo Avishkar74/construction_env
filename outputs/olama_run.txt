@@ -1,0 +1,703 @@
+Day  2 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.038
+  - valid_task_ids=[1]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day  3 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.165
+  - valid_task_ids=[1]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day  4 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=-0.007
+  - valid_task_ids=[1]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day  5 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.041
+  - valid_task_ids=[1]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day  6 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=-0.051
+  - valid_task_ids=[1]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day  7 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.091
+  - valid_task_ids=[1]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day  8 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.087
+  - valid_task_ids=[1]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day  9 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.061
+  - valid_task_ids=[1]
+  - approve_overtime | task_id=1 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 10 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.097
+  - valid_task_ids=[1]
+  - approve_overtime | task_id=1 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 11 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.070
+  - valid_task_ids=[1]
+  - approve_overtime | task_id=1 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 12 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=-0.010
+  - valid_task_ids=[1]
+  - approve_overtime | task_id=1 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 13 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.139
+  - valid_task_ids=[1]
+  - approve_overtime | task_id=1 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 14 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.023
+  - valid_task_ids=[1]
+  - approve_overtime | task_id=1 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 15 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.067
+  - valid_task_ids=[1]
+  - approve_overtime | task_id=1 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 16 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=-0.020
+  - valid_task_ids=[1]
+  - approve_overtime | task_id=1 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 17 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.120
+  - valid_task_ids=[1]
+  - approve_overtime | task_id=1 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 18 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.079
+  - valid_task_ids=[1]
+  - approve_overtime | task_id=1 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 19 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.010
+  - valid_task_ids=[1]
+  - approve_overtime | task_id=1 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 20 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.000
+  - valid_task_ids=[2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 21 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.000
+  - valid_task_ids=[1, 2]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 22 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.000
+  - valid_task_ids=[1, 2]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 23 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.000
+  - valid_task_ids=[1, 2]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 24 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.120
+  - valid_task_ids=[1, 2]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 25 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.004
+  - valid_task_ids=[1, 2]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 26 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.014
+  - valid_task_ids=[1, 2]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 27 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.019
+  - valid_task_ids=[1, 2]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 28 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.061
+  - valid_task_ids=[1, 2]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 29 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.122
+  - valid_task_ids=[1, 2]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 30 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.172
+  - valid_task_ids=[1, 2]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 31 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=-0.022
+  - valid_task_ids=[1, 2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 32 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=-0.075
+  - valid_task_ids=[1, 2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 33 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.107
+  - valid_task_ids=[1, 2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 34 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.119
+  - valid_task_ids=[1, 2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 35 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.022
+  - valid_task_ids=[1, 2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 36 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.044
+  - valid_task_ids=[1, 2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 37 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.082
+  - valid_task_ids=[1, 2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 38 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.020
+  - valid_task_ids=[1, 2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 39 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.166
+  - valid_task_ids=[1, 2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 40 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=-0.028
+  - valid_task_ids=[1, 2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 41 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.053
+  - valid_task_ids=[1, 2]
+  - approve_overtime | task_id=2 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 42 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.100
+  - valid_task_ids=[1, 3, 6, 7]
+  - order_material | task_id=None | allocations=0 | qty=250.0 | start=None
+  - order_material | task_id=None | allocations=0 | qty=84.85144772229057 | start=None
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 43 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=-0.032
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 44 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.169
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 45 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=-0.012
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 46 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.120
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 47 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=-0.020
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 48 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.030
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 49 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.118
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 50 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.123
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 51 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=-0.082
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 52 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.087
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 53 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.006
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 54 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.106
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 55 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.029
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 56 | multi_action           | task_id=None | allocations=0 | workers=4/15 | delta=0.069
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 57 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.024
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 58 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.206
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 59 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.042
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 60 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.096
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 61 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.023
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 62 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.063
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 63 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=-0.008
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 64 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.215
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 65 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.041
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 66 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=-0.078
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 67 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=-0.008
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 68 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.085
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 69 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.071
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 70 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.057
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - order_material | task_id=None | allocations=0 | qty=40.0 | start=None
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 71 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.003
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 72 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.017
+  - valid_task_ids=[1, 2, 3, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 73 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.071
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 74 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.020
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 75 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=-0.025
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 76 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.135
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - order_material | task_id=None | allocations=0 | qty=40.0 | start=None
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 77 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.073
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 78 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.071
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 79 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=-0.041
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 80 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.102
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - order_material | task_id=None | allocations=0 | qty=40.0 | start=None
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 81 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.063
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 82 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.154
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 83 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.026
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 84 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=-0.004
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 85 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.018
+  - valid_task_ids=[1, 2, 3, 6, 7]
+  - approve_overtime | task_id=3 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 86 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.295
+  - valid_task_ids=[1, 2, 4, 6, 7, 8]
+  - order_material | task_id=None | allocations=0 | qty=187.5 | start=None
+  - order_material | task_id=None | allocations=0 | qty=92.4257238611453 | start=None
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 87 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=-0.089
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 88 | multi_action           | task_id=None | allocations=0 | workers=5/15 | delta=0.144
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 89 | multi_action           | task_id=None | allocations=0 | workers=11/15 | delta=-0.081
+  - valid_task_ids=[1, 3, 6, 7, 8]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 90 | multi_action           | task_id=None | allocations=0 | workers=4/15 | delta=0.147
+  - valid_task_ids=[1, 3, 6, 7, 8]
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 91 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=0.065
+  - valid_task_ids=[1, 3, 6, 7, 8]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 92 | multi_action           | task_id=None | allocations=0 | workers=2/15 | delta=0.184
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 93 | multi_action           | task_id=None | allocations=0 | workers=15/15 | delta=-0.107
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 94 | multi_action           | task_id=None | allocations=0 | workers=5/15 | delta=0.295
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 95 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=-0.129
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 96 | multi_action           | task_id=None | allocations=0 | workers=5/15 | delta=0.343
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 97 | multi_action           | task_id=None | allocations=0 | workers=11/15 | delta=-0.098
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 98 | multi_action           | task_id=None | allocations=0 | workers=4/15 | delta=0.187
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 99 | multi_action           | task_id=None | allocations=0 | workers=11/15 | delta=-0.015
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 100 | multi_action           | task_id=None | allocations=0 | workers=4/15 | delta=0.256
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 101 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=-0.020
+  - valid_task_ids=[1, 2, 3, 4, 6, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 102 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.174
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 103 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=-0.191
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 104 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.228
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 105 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=-0.016
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 106 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=-0.009
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 107 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.082
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 108 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.067
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 109 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.166
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 110 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.144
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 111 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=-0.327
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 112 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.118
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 113 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.162
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 114 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=0.222
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 115 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=-0.041
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 116 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.028
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 117 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.161
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 118 | multi_action           | task_id=None | allocations=0 | workers=5/15 | delta=-0.010
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 119 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=-0.086
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 120 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.256
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 121 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=-0.030
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 122 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.145
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - order_material | task_id=None | allocations=0 | qty=40.0 | start=None
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 123 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=-0.083
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 124 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.126
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - order_material | task_id=None | allocations=0 | qty=40.0 | start=None
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 125 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=-0.010
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 126 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=0.042
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=3 | qty=None | start=None
+Day 127 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.262
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 128 | multi_action           | task_id=None | allocations=0 | workers=6/15 | delta=-0.038
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 129 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.014
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 130 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.021
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - order_material | task_id=None | allocations=0 | qty=40.0 | start=None
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 131 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.152
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 132 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=-0.002
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 133 | multi_action           | task_id=None | allocations=0 | workers=9/15 | delta=0.128
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 134 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.158
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 135 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=-0.001
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 136 | multi_action           | task_id=None | allocations=0 | workers=8/15 | delta=-0.028
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 137 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.125
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=2 | qty=None | start=None
+Day 138 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=-0.081
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 139 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.094
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 140 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=-0.001
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 141 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=-0.059
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 142 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.007
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - order_material | task_id=None | allocations=0 | qty=40.0 | start=None
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 143 | multi_action           | task_id=None | allocations=0 | workers=7/15 | delta=0.019
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 144 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.133
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 145 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.069
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 146 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.000
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 147 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.010
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - approve_overtime | task_id=4 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 148 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=0.049
+  - valid_task_ids=[1, 2, 3, 5, 6, 7, 8, 9]
+  - order_material | task_id=None | allocations=0 | qty=325.0 | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 149 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=0.045
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 150 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=0.086
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 151 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=-0.128
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 152 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=0.106
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 153 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=0.083
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 154 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=-0.053
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 155 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.084
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 156 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=0.074
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 157 | multi_action           | task_id=None | allocations=0 | workers=10/15 | delta=0.119
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 158 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=0.023
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 159 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=0.094
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 160 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=-0.039
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 161 | multi_action           | task_id=None | allocations=0 | workers=12/15 | delta=0.202
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 162 | multi_action           | task_id=None | allocations=0 | workers=11/15 | delta=0.019
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 163 | multi_action           | task_id=None | allocations=0 | workers=11/15 | delta=0.081
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 164 | multi_action           | task_id=None | allocations=0 | workers=11/15 | delta=0.101
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 165 | multi_action           | task_id=None | allocations=0 | workers=11/15 | delta=0.054
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 166 | multi_action           | task_id=None | allocations=0 | workers=11/15 | delta=0.000
+  - valid_task_ids=[1, 2, 3, 4, 6, 7, 8, 9, 10]
+  - approve_overtime | task_id=10 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 167 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=0.076
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 168 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=0.024
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 169 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=0.042
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 170 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=0.044
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 171 | multi_action           | task_id=None | allocations=0 | workers=11/15 | delta=0.025
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 172 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=0.062
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 173 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=0.042
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 174 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=0.013
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 175 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=0.132
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 176 | multi_action           | task_id=None | allocations=0 | workers=11/15 | delta=-0.017
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 177 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=-0.001
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - approve_overtime | task_id=10 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 178 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=0.152
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - approve_overtime | task_id=10 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 179 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=-0.071
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - approve_overtime | task_id=10 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+Day 180 | multi_action           | task_id=None | allocations=0 | workers=13/15 | delta=0.134
+  - valid_task_ids=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+  - approve_overtime | task_id=10 | allocations=0 | qty=None | start=None
+  - allocate_workers_batch | task_id=None | allocations=1 | qty=None | start=None
+{
+  "difficulty": "medium",
+  "steps": 179,
+  "done": true,
+  "cumulative_reward": -816.5785,
+  "completed_tasks": 9,
+  "total_tasks": 10,
+  "score": 0.9,
+  "score_range_check": true,
+  "ollama_model": "qwen2.5:7b",
+  "ollama_url": "http://localhost:11434",
+  "strategy_version": "v7",
+  "action_counts": {
+    "allocate_workers": 0,
+    "allocate_workers_batch": 0,
+    "multi_action": 179,
+    "order_material": 0,
+    "reschedule_task": 0,
+    "approve_overtime": 0,
+    "request_pm_guidance": 0,
+    "do_nothing": 0,
+    "other": 0
+  },
+  "zero_progress_steps": 53,
+  "steps_with_reward_components": 0,
+  "reward_components_available": false,
+  "reward_component_totals": {},
+  "reward_component_avg_per_step": {},
+  "iron_triangle": {
+    "time_performance": {
+      "zero_progress_days": 53,
+      "completion_score": 0.9,
+      "finished_within_budget_days": true
+    },
+    "cost_performance": {
+      "idle_waste_total": 0.0,
+      "budget_pressure_total": 0.0,
+      "bad_action_penalties": 0.0
+    },
+    "quality_performance": {
+      "delay_penalty_total": 0.0,
+      "weather_penalty_total": 0.0,
+      "efficiency_earned": 0.0
+    }
+  }
+}

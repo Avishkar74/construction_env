@@ -5,6 +5,7 @@ import random
 import uuid
 import sys
 import os
+import logging
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
@@ -28,6 +29,7 @@ from server.configs.difficulty import get_task_config, DIFFICULTY_SETTINGS
 
 
 OBSERVATION_NOISE_STD = 0.04   # Gaussian noise added to observed progress
+logger = logging.getLogger(__name__)
 
 
 class ConstructionEnvironment(Environment):
@@ -157,11 +159,29 @@ class ConstructionEnvironment(Environment):
         for task in self._task_module.tasks.values():
             if task.true_progress >= 1.0:
                 continue
+            if task.actual_start is not None:
+                continue
             if current_day >= task.planned_start:
                 continue
             if not task.is_unblocked(self._task_module.tasks):
                 continue
+
+            original_duration = task.planned_end - task.planned_start
             task.planned_start = current_day
+            task.planned_end = current_day + original_duration
+
+        for task in self._task_module.tasks.values():
+            if task.true_progress >= 1.0:
+                continue
+            if task.actual_start is not None:
+                continue
+            if not task.is_unblocked(self._task_module.tasks):
+                continue
+            if current_day <= task.planned_start:
+                continue
+            original_duration = task.planned_end - task.planned_start
+            task.planned_start = current_day
+            task.planned_end = current_day + original_duration
 
     def step(
         self,
@@ -211,6 +231,12 @@ class ConstructionEnvironment(Environment):
         else:
             actions_to_apply = [action]
 
+        action_count = len(actions_to_apply)
+        self._state.last_action_count = action_count
+        self._state.cumulative_action_count += action_count
+        if action.action_type == "multi_action":
+            self._state.cumulative_multi_action_count += 1
+
         order_actions = [a for a in actions_to_apply if a.action_type == "order_material" and a.material_type]
         reschedule_actions = [a for a in actions_to_apply if a.action_type == "reschedule_task" and a.task_id is not None]
         overtime_actions = [a for a in actions_to_apply if a.action_type == "approve_overtime" and a.task_id is not None]
@@ -231,11 +257,6 @@ class ConstructionEnvironment(Environment):
             if task and a.new_start_day:
                 task.planned_start = a.new_start_day
 
-        for a in overtime_actions:
-            hours = a.overtime_hours or 2
-            self._workforce_module.apply_overtime(hours)
-            step_cost += self._workforce_module.overtime_cost(hours)
-
         if not allocation_actions and order_actions:
             allocation_actions = [ConstructionAction(action_type="allocate_workers")]
 
@@ -253,6 +274,10 @@ class ConstructionEnvironment(Environment):
             else:
                 current_obs = self._build_observation(done=False, reward=0.0)
                 allocations = self._compute_dynamic_allocations(current_obs)
+                logger.debug(
+                    "Day %s: Agent sent allocate_workers without task_id; using server-side allocation",
+                    day,
+                )
 
             for alloc in allocations:
                 if self._workers_available <= 0:
@@ -261,8 +286,10 @@ class ConstructionEnvironment(Environment):
                 worker_count = max(0, int(alloc.get("worker_count", 0)))
                 task = self._task_module.tasks.get(task_id)
                 if task is None or task.blocked or task.true_progress >= 1.0:
+                    bad_action = True
                     continue
                 if worker_count <= 0:
+                    bad_action = True
                     continue
 
                 base_cap = max(1, task.required_workers)
@@ -294,19 +321,72 @@ class ConstructionEnvironment(Environment):
                 if task and task.blocked:
                     bad_action = True   # penalize allocating to a blocked task
 
+        total_overtime_hours = 0.0
+        for a in overtime_actions:
+            hours = a.overtime_hours or 2
+            total_overtime_hours += max(0, hours)
+            task = self._task_module.tasks.get(a.task_id) if a.task_id is not None else None
+            workers_on_task = task.assigned_workers if task is not None else None
+            self._workforce_module.apply_overtime(hours)
+            step_cost += self._workforce_module.overtime_cost(hours, workers_on_task=workers_on_task)
+        self._state.last_overtime_hours = total_overtime_hours
+        self._state.cumulative_overtime_hours += total_overtime_hours
+
+        material_costs, price_issues = self._event_module.roll_price_escalation(
+            dict(self._material_module.material_costs)
+        )
+        if price_issues:
+            self._state.active_issues.extend(price_issues)
+        self._material_module.update_material_costs(material_costs)
+
+        delayed_orders, delay_issues = self._event_module.roll_material_delivery_delay(
+            list(self._state.pending_orders)
+        )
+        if delay_issues:
+            self._state.active_issues.extend(delay_issues)
+        self._state.pending_orders = delayed_orders
+
         # ── 3. Process material deliveries (removes delivered orders) ──
         self._state.pending_orders = self._material_module.process_deliveries(
             list(self._state.pending_orders), day
         )
 
+        spoilage_issues = self._material_module.age_inventory(day)
+        if spoilage_issues:
+            self._state.active_issues.extend(spoilage_issues)
+        spoilage_loss = 0.0
+        for issue in spoilage_issues:
+            if ":" in issue:
+                try:
+                    spoilage_loss += float(issue.split(":", 1)[1])
+                except ValueError:
+                    continue
+        self._state.last_material_waste = spoilage_loss
+        self._state.cumulative_material_waste += spoilage_loss
+
         # ── 4. Update all task progress ──
+        total_progress_before = sum(t.true_progress for t in self._task_module.tasks.values())
+        cement_quality = self._material_module.get_cement_quality(day)
         progress_gain = self._task_module.update_all(
             current_day=day,
             weather_modifier=weather_modifier,
+            weather=weather,
             efficiency=self._workforce_module.efficiency,
             materials_available=self._material_module.inventory,
             pending_orders=list(self._state.pending_orders),
+            equipment_health=self._state.equipment_health,
+            cement_quality=cement_quality,
         )
+
+        tasks_after_rework, rework_issues = self._event_module.roll_quality_rework(
+            self._task_module.tasks
+        )
+        self._task_module.tasks = tasks_after_rework
+        if rework_issues:
+            self._state.active_issues.extend(rework_issues)
+
+        total_progress_after = sum(t.true_progress for t in self._task_module.tasks.values())
+        progress_gain = total_progress_after - total_progress_before
 
         # ── 5. Sync true_task_progress into state ──
         for tid, task in self._task_module.tasks.items():
@@ -317,9 +397,13 @@ class ConstructionEnvironment(Environment):
         self._workforce_module.end_of_day(workers_used)
         self._state.worker_efficiency = self._workforce_module.efficiency
         self._state.overtime_fatigue = self._workforce_module.fatigue
+        self._state.cumulative_idle_workers += max(0, self._workers_available)
 
         # ── 7. Accumulate cost ──
-        self._state.total_cost += step_cost
+        self._state.total_cost = min(
+            self._state.total_cost + step_cost,
+            self._state.total_budget * 2.0,
+        )
 
         # ── 8. Update delay tracking ──
         self._state.total_delay_days = self._task_module.total_delay_days(day)
@@ -334,7 +418,14 @@ class ConstructionEnvironment(Environment):
             bad_action=bad_action,
             budget_ratio=budget_ratio,
             day=day,
+            action_count=action_count,
+            overtime_hours=total_overtime_hours,
+            zero_progress=(progress_gain <= 0.0),
         )
+        if bad_action:
+            self._state.cumulative_bad_action_count += 1
+        if progress_gain <= 0.0:
+            self._state.cumulative_zero_progress_days += 1
 
         # ── 11. Check done ──
         done = self._task_module.all_complete() or day >= self._state.max_days
@@ -360,6 +451,9 @@ class ConstructionEnvironment(Environment):
         bad_action: bool,
         budget_ratio: float,
         day: int,
+        action_count: int,
+        overtime_hours: float,
+        zero_progress: bool,
     ) -> tuple[float, dict]:
         components: dict = {}
 
@@ -383,6 +477,16 @@ class ConstructionEnvironment(Environment):
 
         # Bad action (allocating to blocked task)
         components['bad_action'] = -1.5 if bad_action else 0.0
+
+        # Action complexity penalty (discourage multi-action spam)
+        extra_actions = max(0, action_count - 1)
+        components['action_penalty'] = -0.2 * extra_actions
+
+        # Overtime penalty (cost + quality hit)
+        components['overtime_penalty'] = -0.15 * max(0.0, overtime_hours)
+
+        # Zero-progress day penalty
+        components['zero_progress_penalty'] = -0.5 if zero_progress else 0.0
 
         # Budget pressure
         components['budget_pressure'] = -((budget_ratio - 0.9) * 3.0) if budget_ratio > 0.9 else 0.0
@@ -415,6 +519,12 @@ class ConstructionEnvironment(Environment):
                 noise = random.gauss(0, OBSERVATION_NOISE_STD)
                 noisy_progress = max(0.0, min(0.99, noisy_progress + noise))
 
+            est_workers = max(1, task.assigned_workers or task.required_workers)
+            est_rate = 0.02 * (est_workers ** 0.85)
+            remaining = max(0.0, 1.0 - task.true_progress)
+            est_days = int(math.ceil(remaining / est_rate)) if est_rate > 0 else 0
+            est_completion = day + est_days if remaining > 0 else day
+
             tasks_obs.append(TaskObservation(
                 task_id=task.task_id,
                 title=task.title,
@@ -431,6 +541,9 @@ class ConstructionEnvironment(Environment):
                 assigned_workers=task.assigned_workers,
                 required_materials=task.required_materials,
                 days_behind_schedule=task.days_behind(day),
+                estimated_completion_day=est_completion,
+                worker_hours_logged=round(task.worker_hours_logged, 2),
+                rework_count=task.rework_count,
             ))
 
         budget_ratio = self._state.total_cost / max(1, self._state.total_budget)
@@ -466,6 +579,24 @@ class ConstructionEnvironment(Environment):
             budget_used=round(budget_ratio, 4),
             chat_messages=chat,
             difficulty=difficulty,
+            equipment_health=dict(self._state.equipment_health),
+            critical_path_tasks=[t.task_id for t in self._task_module.tasks.values() if t.is_critical_path],
+            days_remaining=max(0, self._state.max_days - day),
+            overall_progress=round(
+                sum(t.true_progress for t in self._task_module.tasks.values())
+                / max(1, len(self._task_module.tasks)),
+                4,
+            ),
+            idle_workers_ratio=round(
+                (self._workers_available / max(1, total_workers)),
+                4,
+            ),
+            overtime_hours=round(self._state.last_overtime_hours, 2),
+            material_waste=round(self._state.last_material_waste, 2),
+            delay_penalty=round(
+                min(1.0, self._state.total_delay_days / max(1, self._state.max_days * 0.2)),
+                4,
+            ),
         )
 
     # ──────────────────────────────────────────
@@ -483,55 +614,49 @@ class ConstructionEnvironment(Environment):
         completed = sum(1 for t in tasks if t.true_progress >= 1.0)
         completion_ratio = completed / total
 
-        # Delay
-        max_allowed_delay = self._state.max_days * 0.2   # 20% buffer allowed
-        delay_penalty = min(1.0, self._state.total_delay_days / max(1, max_allowed_delay))
+        # Time efficiency
+        planned_end = max(t.planned_end for t in tasks)
+        ideal_days = max(1, planned_end)
+        actual_days = max(1, self._state.current_day)
+        time_efficiency = min(1.0, ideal_days / actual_days)
 
-        # Budget
+        # Cost efficiency (penalize overruns only)
         budget_overrun = max(0.0, self._state.total_cost - self._state.total_budget)
-        budget_score = max(0.0, 1.0 - (budget_overrun / max(1, self._state.total_budget)))
+        cost_efficiency = max(0.0, 1.0 - (budget_overrun / max(1, self._state.total_budget)))
 
-        # Efficiency
-        total_worker_days = self._state.step_count * self._workforce_module.total_workers
-        # Rough productive days estimation
-        idle_fraction = 1.0 - (completion_ratio * 0.9)  # approximate
-        efficiency_score = max(0.0, 1.0 - idle_fraction)
-
-        # Critical path
-        on_time, total_critical = self._task_module.get_critical_tasks_on_time(
-            self._state.current_day
+        # Quality score (penalize overtime, idle, action spam, waste)
+        total_workers = max(1, self._workforce_module.total_workers)
+        step_count = max(1, self._state.step_count)
+        idle_ratio = min(1.0, self._state.cumulative_idle_workers / (step_count * total_workers))
+        overtime_ratio = min(1.0, self._state.cumulative_overtime_hours / (step_count * 2.0))
+        action_avg = self._state.cumulative_action_count / step_count
+        action_complexity = min(1.0, max(0.0, (action_avg - 1.0) / 2.0))
+        waste_ratio = min(1.0, self._state.cumulative_material_waste / max(1, self._state.total_budget))
+        quality_penalty = (
+            (0.35 * overtime_ratio)
+            + (0.35 * idle_ratio)
+            + (0.2 * action_complexity)
+            + (0.1 * waste_ratio)
         )
-        critical_score = on_time / max(1, total_critical)
+        quality_score = max(0.0, 1.0 - quality_penalty)
 
-        if self._state.difficulty == "easy":
-            score = (
-                0.5 * completion_ratio
-                + 0.3 * efficiency_score
-                + 0.2 * (1 - delay_penalty)
-            )
-        elif self._state.difficulty == "medium":
-            score = (
-                0.4 * completion_ratio
-                + 0.2 * critical_score
-                + 0.2 * budget_score
-                + 0.2 * (1 - delay_penalty)
-            )
-        else:  # hard
-            score = (
-                0.3 * completion_ratio
-                + 0.2 * (1 - delay_penalty)
-                + 0.2 * budget_score
-                + 0.15 * efficiency_score
-                + 0.15 * critical_score
-            )
+        score = (
+            0.4 * completion_ratio
+            + 0.3 * time_efficiency
+            + 0.2 * cost_efficiency
+            + 0.1 * quality_score
+        )
 
         return {
             "score": round(max(0.0, min(1.0, score)), 4),
             "breakdown": {
                 "completion_ratio": round(completion_ratio, 4),
-                "delay_penalty": round(delay_penalty, 4),
-                "budget_score": round(budget_score, 4),
-                "efficiency_score": round(efficiency_score, 4),
-                "critical_path_score": round(critical_score, 4),
+                "time_efficiency": round(time_efficiency, 4),
+                "cost_efficiency": round(cost_efficiency, 4),
+                "quality_score": round(quality_score, 4),
+                "idle_ratio": round(idle_ratio, 4),
+                "overtime_ratio": round(overtime_ratio, 4),
+                "action_complexity": round(action_complexity, 4),
+                "material_waste_ratio": round(waste_ratio, 4),
             },
         }
