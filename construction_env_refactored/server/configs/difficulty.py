@@ -1,3 +1,4 @@
+# server/configs/difficulty.py
 """
 Difficulty configuration.
 

@@ -1,3 +1,4 @@
+# server/modules/event_module.py
 """
 Event Module — All stochastic disruptions.
 
@@ -48,13 +49,10 @@ class EventModule:
         return lost, issues
 
     def roll_equipment_failure(
-        self,
-        equipment_health: Dict[str, float],
-        failure_modifier: float = 1.0,
+        self, equipment_health: Dict[str, float]
     ) -> Tuple[Dict[str, float], List[str]]:
         issues: List[str] = []
         fail_prob = {"easy": 0.02, "medium": 0.06, "hard": 0.12}[self.difficulty]
-        fail_prob = max(0.0, min(1.0, fail_prob * max(0.0, failure_modifier)))
         for equip in list(equipment_health.keys()):
             if random.random() < fail_prob:
                 equipment_health[equip] = max(
@@ -80,15 +78,10 @@ class EventModule:
             updated.append(order)
         return updated, issues
 
-    def roll_quality_rework(
-        self,
-        tasks: dict,
-        failure_modifier: float = 1.0,
-    ) -> Tuple[dict, List[str]]:
+    def roll_quality_rework(self, tasks: dict) -> Tuple[dict, List[str]]:
         """Random quality failure causing progress regression."""
         issues: List[str] = []
         prob = {"easy": 0.02, "medium": 0.05, "hard": 0.10}[self.difficulty]
-        prob = max(0.0, min(1.0, prob * max(0.0, failure_modifier)))
         for task in tasks.values():
             if 0.3 < task.true_progress < 0.9 and random.random() < prob:
                 setback = random.uniform(0.05, 0.15)

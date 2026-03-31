@@ -1,3 +1,4 @@
+# server/construction_env_environment.py
 """
 ConstructionEnvironment — Full implementation with all critical fixes:
 
@@ -35,7 +36,6 @@ from server.modules.event_module import EventModule
 from server.modules.material_module import MaterialModule
 from server.modules.workforce_module import WorkforceModule
 from server.modules.chat_module import ChatModule
-from server.modules.action_catalog import ActionCatalog
 from server.configs.difficulty import get_task_config, DIFFICULTY_SETTINGS
 
 
@@ -54,20 +54,6 @@ class ConstructionEnvironment(Environment):
         self._workforce_module = WorkforceModule(total_workers=20)
         self._chat_module = ChatModule()
         self._workers_available = 20
-        catalog_path = os.path.join(
-            os.path.dirname(__file__), "..", "construction_actions_full.json"
-        )
-        self._action_catalog = ActionCatalog.load(catalog_path)
-        self._core_action_types = {
-            "allocate_workers",
-            "allocate_workers_batch",
-            "order_material",
-            "approve_overtime",
-            "reschedule_task",
-            "do_nothing",
-            "request_pm_guidance",
-            "multi_action",
-        }
 
     # ─────────────────────────────────────────────────────
     # RESET
@@ -97,12 +83,6 @@ class ConstructionEnvironment(Environment):
         self._workforce_module = WorkforceModule(total_workers=total_workers)
         self._workers_available = total_workers
 
-        pre_construction_actions = [
-            action.name
-            for action in self._action_catalog.definitions()
-            if action.phase == "pre_construction"
-        ]
-
         self._state = ConstructionState(
             episode_id=episode_id or str(uuid.uuid4()),
             step_count=0,
@@ -118,11 +98,6 @@ class ConstructionEnvironment(Environment):
             total_cost=0.0,
             total_delay_days=0,
             current_weather="clear",
-            completed_actions=pre_construction_actions,
-            quality_inspection_days=0,
-            equipment_booking_days=0,
-            replan_bonus_days=0,
-            weather_mitigation_days=0,
         )
 
         return self._build_observation(done=False, reward=0.0)
@@ -155,8 +130,7 @@ class ConstructionEnvironment(Environment):
         self._workers_available = max(0, self._workers_available - workers_lost)
 
         equip_health, equip_issues = self._event_module.roll_equipment_failure(
-            dict(self._state.equipment_health),
-            failure_modifier=0.5 if self._state.equipment_booking_days > 0 else 1.0,
+            dict(self._state.equipment_health)
         )
         self._state.equipment_health = equip_health
         self._state.active_issues = worker_issues + equip_issues
@@ -198,10 +172,6 @@ class ConstructionEnvironment(Environment):
             a for a in actions_to_apply
             if a.action_type in ("allocate_workers", "allocate_workers_batch")
         ]
-        catalog_actions = [
-            a for a in actions_to_apply
-            if a.action_type not in self._core_action_types
-        ]
 
         # Material orders
         for a in order_actions:
@@ -218,13 +188,6 @@ class ConstructionEnvironment(Environment):
                 original_duration = task.planned_end - task.planned_start
                 task.planned_start = a.new_start_day
                 task.planned_end = a.new_start_day + original_duration
-
-        # Catalog actions (extended action types)
-        for a in catalog_actions:
-            cost, applied = self._apply_catalog_action(a.action_type, day)
-            if not applied:
-                bad_action = True
-            step_cost += cost
 
         # Auto-inject allocation when only ordering
         if not allocation_actions and order_actions:
@@ -353,14 +316,13 @@ class ConstructionEnvironment(Environment):
             efficiency=self._workforce_module.efficiency,
             materials_available=self._material_module.inventory,
             pending_orders=list(self._state.pending_orders),
-            equipment_health=self._state.equipment_health,
+            equipment_health=self._state.equipment_health,   # ── FIX 4
             cement_quality=cement_quality,
         )
 
         # Quality rework events
         tasks_after, rework_issues = self._event_module.roll_quality_rework(
-            self._task_module.tasks,
-            failure_modifier=0.5 if self._state.quality_inspection_days > 0 else 1.0,
+            self._task_module.tasks
         )
         self._task_module.tasks = tasks_after
         if rework_issues:
@@ -397,7 +359,7 @@ class ConstructionEnvironment(Environment):
             progress_gain=progress_gain,
             weather=weather,
             bad_action=bad_action,
-            budget_ratio=budget_ratio,
+            budget_ratio=budget_ratio,  # now accurate
             day=day,
             action_count=action_count,
             overtime_hours=total_overtime_hours,
@@ -407,16 +369,6 @@ class ConstructionEnvironment(Environment):
             self._state.cumulative_bad_action_count += 1
         if progress_gain <= 0.0:
             self._state.cumulative_zero_progress_days += 1
-
-        # Decrement temporary modifiers
-        if self._state.quality_inspection_days > 0:
-            self._state.quality_inspection_days -= 1
-        if self._state.equipment_booking_days > 0:
-            self._state.equipment_booking_days -= 1
-        if self._state.replan_bonus_days > 0:
-            self._state.replan_bonus_days -= 1
-        if self._state.weather_mitigation_days > 0:
-            self._state.weather_mitigation_days -= 1
 
         # ── 11. Done ──────────────────────────────────────
         done = self._task_module.all_complete() or day >= self._state.max_days
@@ -556,13 +508,7 @@ class ConstructionEnvironment(Environment):
         )
 
         # Storm penalty
-        weather_penalty = -0.3 if weather == "storm" else 0.0
-        if self._state.weather_mitigation_days > 0 and weather in ("rain", "storm"):
-            weather_penalty *= 0.5
-        c["weather_penalty"] = weather_penalty
-
-        # Recovery bonus
-        c["replan_bonus"] = 0.3 if self._state.replan_bonus_days > 0 else 0.0
+        c["weather_penalty"] = -0.3 if weather == "storm" else 0.0
 
         raw = sum(c.values())
         clipped = max(-5.0, min(5.0, raw))
@@ -679,72 +625,7 @@ class ConstructionEnvironment(Environment):
                 4,
             ),
             cement_quality=round(cement_quality, 3),
-            available_actions=self._available_actions(),
-            completed_actions=list(self._state.completed_actions)[-20:],
         )
-
-    def _available_actions(self) -> List[str]:
-        catalog_actions = self._action_catalog.available_actions(
-            self._state.completed_actions
-        )
-        base = sorted(self._core_action_types)
-        combined = list(base)
-        for name in catalog_actions:
-            if name not in combined:
-                combined.append(name)
-        return combined[:60]
-
-    def _apply_catalog_action(self, action_name: str, day: int) -> tuple[float, bool]:
-        definition = self._action_catalog.get(action_name)
-        if definition is None:
-            self._state.active_issues.append(f"unknown_action:{action_name}")
-            return 0.0, False
-
-        completed = set(self._state.completed_actions)
-        missing = [req for req in definition.prerequisites if req not in completed]
-        if missing:
-            self._state.active_issues.append(
-                f"missing_prereq:{action_name}:{','.join(missing)}"
-            )
-            return 0.0, False
-
-        variables = self._action_catalog.build_variables(definition)
-        cost = self._action_catalog.compute_cost(definition, variables)
-
-        if action_name == "reschedule_tasks":
-            self._reschedule_all_tasks(day)
-        elif action_name == "replan_project":
-            self._reschedule_all_tasks(day)
-            self._state.replan_bonus_days = max(self._state.replan_bonus_days, 3)
-        elif action_name == "handle_weather_delay":
-            self._state.weather_mitigation_days = max(self._state.weather_mitigation_days, 1)
-        elif action_name in ("conduct_quality_inspection", "conduct_cube_tests"):
-            self._state.quality_inspection_days = max(self._state.quality_inspection_days, 3)
-        elif action_name in ("book_equipment", "schedule_equipment", "mobilize_equipment"):
-            self._state.equipment_booking_days = max(self._state.equipment_booking_days, 3)
-        elif action_name == "optimize_cost":
-            remaining = max(0.0, self._state.total_budget - self._state.total_cost)
-            savings = remaining * 0.02
-            cost = max(0.0, cost - savings)
-        elif action_name == "hire_workers":
-            new_workers = int(max(1, min(5, definition.max_workers or 3)))
-            self._workforce_module.add_workers(new_workers)
-            self._workers_available += new_workers
-
-        if action_name not in completed:
-            self._state.completed_actions.append(action_name)
-
-        return cost, True
-
-    def _reschedule_all_tasks(self, current_day: int) -> None:
-        for task in self._task_module.tasks.values():
-            if task.true_progress >= 1.0:
-                continue
-            if task.actual_start is not None:
-                continue
-            original_duration = task.planned_end - task.planned_start
-            task.planned_start = max(current_day, task.planned_start)
-            task.planned_end = task.planned_start + original_duration
 
     # ─────────────────────────────────────────────────────
     # GRADER

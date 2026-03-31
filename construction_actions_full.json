@@ -1,0 +1,2359 @@
+{
+  "meta": {
+    "version": "2.0",
+    "currency": "INR",
+    "region": "India (Bengaluru baseline)",
+    "last_updated": "2025",
+    "notes": "All cost formulas are parameterized. Variables defined in cost_formula_variables section. Rates reflect 2024–25 Indian market rates."
+  },
+
+  "cost_formula_variables": {
+    "A"  : "Plot / built-up area in sq.ft",
+    "V"  : "Volume in cubic metres (m³)",
+    "L"  : "Length in running metres (rm)",
+    "N"  : "Number of units / count",
+    "D"  : "Duration in days",
+    "W"  : "Number of workers",
+    "C"  : "Complexity multiplier — 1.0 (simple), 1.3 (medium), 1.6 (complex), 2.0 (highly complex)",
+    "Q"  : "Quality tier — 1.0 (standard), 1.25 (premium), 1.6 (luxury)",
+    "F"  : "Floor multiplier — 1.0 (G), 1.05 per additional floor",
+    "T"  : "Terrain difficulty — 1.0 (flat), 1.2 (undulating), 1.5 (rocky/sloped)",
+    "R"  : "Region / city index — 1.0 (tier-2), 1.2 (Bengaluru), 1.3 (Mumbai/Delhi)",
+    "S"  : "Structural type — 1.0 (load-bearing), 1.2 (RCC frame), 1.5 (steel frame)",
+    "E"  : "Equipment cost per day (INR) — crane: 8000, excavator: 5000, concrete pump: 6000, transit mixer: 3500",
+    "P"  : "Penalty per delay day (project-specific, default 5000 INR/day)",
+    "OT" : "Overtime hours per worker per day beyond 8 hrs"
+  },
+
+  "general_action_model": {
+    "description": "Universal schema every action follows. All cost formulas reference variables above.",
+    "schema": {
+      "name"              : "string — snake_case unique identifier",
+      "display_name"      : "string — human-readable title",
+      "category"          : "string — phase/domain grouping",
+      "phase"             : "enum — pre_construction | site_prep | foundation | structure | masonry | mep | finishing | external | handover | operations | workforce | scheduling | quality | risk | strategy | meta",
+      "description"       : "string — what this action does",
+      "when_used"         : "string — trigger condition",
+      "prerequisites"     : ["list of action names that must be done first"],
+      "enables"           : ["list of action names unlocked after this"],
+      "is_critical_path"  : "bool",
+      "parallelisable"    : "bool — can run simultaneously with sibling actions",
+      "typical_duration_days" : "number — median real-world duration",
+      "min_workers"       : "number",
+      "max_workers"       : "number — beyond which productivity doesn't scale",
+      "cost_model": {
+        "formula"         : "string — expression using defined variables",
+        "base_rate"       : "number — INR unit rate",
+        "unit"            : "string — per sq.ft | per m³ | per rm | per day | lumpsum | per unit",
+        "example_calc"    : "string — worked example for a 1500 sq.ft G+1 house",
+        "contingency_pct" : "number — % to add on top (risk buffer)"
+      },
+      "risk_factors"      : ["list of things that can increase cost/time"],
+      "output_artifact"   : "string — what is produced (report, physical work, approval, etc.)",
+      "quality_checks"    : ["list of QC steps before marking complete"]
+    }
+  },
+
+  "actions": [
+
+    
+
+    {
+      "name": "verify_land_title",
+      "display_name": "Legal Title Verification",
+      "category": "legal",
+      "phase": "pre_construction",
+      "description": "Engage a property lawyer to verify title deeds, encumbrance certificate, khata, and revenue records for 30 years.",
+      "when_used": "Before purchasing or commencing any work on a plot.",
+      "prerequisites": [],
+      "enables": ["check_fsi_far", "submit_approvals"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 7,
+      "min_workers": 1,
+      "max_workers": 2,
+      "cost_model": {
+        "formula": "5000 + (A * 2 * C * R)",
+        "base_rate": 5000,
+        "unit": "lumpsum + per sq.ft",
+        "example_calc": "For 1500 sq.ft plot: 5000 + (1500*2*1.0*1.2) = 8600 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["disputed ownership", "missing historical documents", "encroachments"],
+      "output_artifact": "Title clearance report",
+      "quality_checks": ["EC 30-year search", "Khata verification", "BBMP/BDA approval status"]
+    },
+
+    {
+      "name": "conduct_soil_investigation",
+      "display_name": "Soil Investigation / Geotechnical Survey",
+      "category": "survey",
+      "phase": "pre_construction",
+      "description": "Perform Standard Penetration Test (SPT) bore holes, lab analysis of soil samples for bearing capacity (SBC), liquid limit, and plasticity index.",
+      "when_used": "Before structural design and foundation planning.",
+      "prerequisites": ["verify_land_title"],
+      "enables": ["estimate_budget", "approve_go_no_go"],
+      "is_critical_path": true,
+      "parallelisable": true,
+      "typical_duration_days": 3,
+      "min_workers": 2,
+      "max_workers": 4,
+      "cost_model": {
+        "formula": "3000 * N_boreholes * C * R + 2000 * N_samples",
+        "base_rate": 3000,
+        "unit": "per borehole",
+        "example_calc": "3 boreholes at 1.0 complexity, Bengaluru: 3000*3*1.0*1.2 + 2000*6 = 10800+12000 = 22800 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["rock strata requiring deeper boring", "waterlogged sites", "lab delay"],
+      "output_artifact": "Geotechnical investigation report with SBC",
+      "quality_checks": ["Minimum 3 bore holes per IS:2131", "Lab reports from accredited lab", "Signed by licensed geotechnical engineer"]
+    },
+
+    {
+      "name": "run_topography_survey",
+      "display_name": "Topographic / Contour Survey",
+      "category": "survey",
+      "phase": "pre_construction",
+      "description": "Total station survey to establish site benchmarks, contour lines, and elevation differences for cut-fill analysis.",
+      "when_used": "Before site preparation and grading.",
+      "prerequisites": [],
+      "enables": ["strip_topsoil", "mark_layout"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 1,
+      "min_workers": 2,
+      "max_workers": 3,
+      "cost_model": {
+        "formula": "2 * A * R * T",
+        "base_rate": 2,
+        "unit": "per sq.ft",
+        "example_calc": "1500 sq.ft flat site: 2*1500*1.2*1.0 = 3600 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["dense vegetation", "rocky terrain", "monsoon season"],
+      "output_artifact": "Contour map and benchmark pegs",
+      "quality_checks": ["Closed traverse accuracy < 1:5000", "Benchmarks tied to known datum"]
+    },
+
+    {
+      "name": "perform_utility_scan",
+      "display_name": "Underground Utility / GPR Scan",
+      "category": "survey",
+      "phase": "pre_construction",
+      "description": "Ground Penetrating Radar (GPR) scan and utility company records check for water, sewer, gas, HT/LT power lines.",
+      "when_used": "Before excavation.",
+      "prerequisites": ["run_topography_survey"],
+      "enables": ["bulk_excavation"],
+      "is_critical_path": true,
+      "parallelisable": true,
+      "typical_duration_days": 1,
+      "min_workers": 2,
+      "max_workers": 3,
+      "cost_model": {
+        "formula": "8000 + (A * 1.5 * R)",
+        "base_rate": 8000,
+        "unit": "lumpsum + per sq.ft",
+        "example_calc": "1500 sq.ft: 8000 + 1500*1.5*1.2 = 10700 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["undocumented legacy utilities", "high clay content reducing GPR accuracy"],
+      "output_artifact": "Utility map overlay",
+      "quality_checks": ["Utility company NOC obtained", "GPR scan coverage 100% of footprint"]
+    },
+
+    {
+      "name": "check_fsi_far",
+      "display_name": "FSI / FAR & Zoning Compliance Check",
+      "category": "legal",
+      "phase": "pre_construction",
+      "description": "Verify Floor Space Index, Floor Area Ratio, setbacks, height restrictions, and usage zoning under BBMP/BDA/CMC bylaws.",
+      "when_used": "Before architectural design freeze.",
+      "prerequisites": ["verify_land_title"],
+      "enables": ["prepare_architectural_drawings", "submit_approvals"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 2,
+      "min_workers": 1,
+      "max_workers": 1,
+      "cost_model": {
+        "formula": "3000 * C * R",
+        "base_rate": 3000,
+        "unit": "lumpsum",
+        "example_calc": "Standard residential: 3000*1.0*1.2 = 3600 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["disputed zone change", "ODP revision in progress"],
+      "output_artifact": "Zoning compliance memo",
+      "quality_checks": ["Cross-checked with BBMP e-Aasthi records", "Architect sign-off"]
+    },
+
+    {
+      "name": "prepare_architectural_drawings",
+      "display_name": "Architectural Design & Drawing Preparation",
+      "category": "design",
+      "phase": "pre_construction",
+      "description": "Prepare floor plans, elevations, sections, site plan, and 3D renders. Includes concept, schematic, and construction document stages.",
+      "when_used": "After feasibility and client brief.",
+      "prerequisites": ["check_fsi_far", "conduct_soil_investigation"],
+      "enables": ["prepare_structural_drawings", "prepare_mep_drawings", "submit_approvals"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 21,
+      "min_workers": 1,
+      "max_workers": 5,
+      "cost_model": {
+        "formula": "35 * A * Q * C * R",
+        "base_rate": 35,
+        "unit": "per sq.ft",
+        "example_calc": "1500 sq.ft standard: 35*1500*1.0*1.0*1.2 = 63000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["client revision cycles", "site shape complexity", "heritage zone restrictions"],
+      "output_artifact": "Approved architectural drawing set (AutoCAD + PDF)",
+      "quality_checks": ["BBMP bye-law compliance", "Vastu/solar orientation review", "Client sign-off"]
+    },
+
+    {
+      "name": "prepare_structural_drawings",
+      "display_name": "Structural Engineering Design",
+      "category": "design",
+      "phase": "pre_construction",
+      "description": "RCC/Steel structural design per IS codes — column sizes, beam schedules, slab thickness, footing dimensions, bar-bending schedules.",
+      "when_used": "After architectural drawings are frozen.",
+      "prerequisites": ["prepare_architectural_drawings", "conduct_soil_investigation"],
+      "enables": ["estimate_budget", "fabricate_rebar"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 14,
+      "min_workers": 1,
+      "max_workers": 3,
+      "cost_model": {
+        "formula": "20 * A * S * C * R",
+        "base_rate": 20,
+        "unit": "per sq.ft",
+        "example_calc": "1500 sq.ft RCC: 20*1500*1.2*1.0*1.2 = 43200 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["seismic zone upgrade", "soft soil requiring deep foundation redesign"],
+      "output_artifact": "Structural drawing set + bar-bending schedules",
+      "quality_checks": ["IS:456, IS:1893 compliance", "Third-party structural peer review for buildings > 15m"]
+    },
+
+    {
+      "name": "prepare_mep_drawings",
+      "display_name": "MEP Services Design",
+      "category": "design",
+      "phase": "pre_construction",
+      "description": "Design electrical single-line diagrams, plumbing isometrics, HVAC layout, fire fighting system, ELV/data points.",
+      "when_used": "Parallel to structural design.",
+      "prerequisites": ["prepare_architectural_drawings"],
+      "enables": ["submit_approvals", "install_electrical_conduits", "install_plumbing"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 14,
+      "min_workers": 1,
+      "max_workers": 4,
+      "cost_model": {
+        "formula": "15 * A * C * R",
+        "base_rate": 15,
+        "unit": "per sq.ft",
+        "example_calc": "1500 sq.ft: 15*1500*1.0*1.2 = 27000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["coordination clashes", "BESCOM/BWSSB requirement changes"],
+      "output_artifact": "MEP drawing set",
+      "quality_checks": ["Clash detection with structure", "Authority utility demand letter"]
+    },
+
+    {
+      "name": "estimate_budget",
+      "display_name": "Detailed Project Cost Estimate (BOQ)",
+      "category": "cost",
+      "phase": "pre_construction",
+      "description": "Prepare Bill of Quantities with material take-offs, labour rates, equipment costs, contractor margins, and contingency.",
+      "when_used": "After design is frozen, before execution.",
+      "prerequisites": ["prepare_structural_drawings", "prepare_mep_drawings"],
+      "enables": ["approve_go_no_go"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 5,
+      "min_workers": 1,
+      "max_workers": 2,
+      "cost_model": {
+        "formula": "5 * A * R",
+        "base_rate": 5,
+        "unit": "per sq.ft (cost of estimation service)",
+        "example_calc": "1500 sq.ft: 5*1500*1.2 = 9000 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["price escalation in market", "scope changes after estimate"],
+      "output_artifact": "Detailed BOQ spreadsheet",
+      "quality_checks": ["Rate comparison with current DSR", "Client approval of BOQ"]
+    },
+
+    {
+      "name": "submit_approvals",
+      "display_name": "Building Plan Approval Submission (BBMP/BDA)",
+      "category": "legal",
+      "phase": "pre_construction",
+      "description": "Submit building plans, ownership docs, NOCs to BBMP/BDA/BMRDA for building permission. Includes fire NOC, OC application.",
+      "when_used": "Before construction starts.",
+      "prerequisites": ["prepare_architectural_drawings", "prepare_structural_drawings", "check_fsi_far"],
+      "enables": ["fence_site", "mobilize_equipment"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 45,
+      "min_workers": 1,
+      "max_workers": 1,
+      "cost_model": {
+        "formula": "(A * 50 * R) + 25000",
+        "base_rate": 50,
+        "unit": "per sq.ft + lumpsum (govt fees + liaison)",
+        "example_calc": "1500 sq.ft Bengaluru: 1500*50*1.2+25000 = 115000 INR",
+        "contingency_pct": 20
+      },
+      "risk_factors": ["objections from neighbours", "document deficiency notices", "election model code delays"],
+      "output_artifact": "Sanctioned building plan + commencement certificate",
+      "quality_checks": ["Khata in current owner's name", "Setback compliance check"]
+    },
+
+    {
+      "name": "obtain_fire_noc",
+      "display_name": "Fire NOC",
+      "category": "legal",
+      "phase": "pre_construction",
+      "description": "Obtain No Objection Certificate from Fire Department for buildings above 15m or assembly/commercial occupancy.",
+      "when_used": "Before construction if mandatory; else before OC.",
+      "prerequisites": ["prepare_mep_drawings"],
+      "enables": ["submit_approvals"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 30,
+      "min_workers": 1,
+      "max_workers": 1,
+      "cost_model": {
+        "formula": "15000 + (A * 10 * R)",
+        "base_rate": 15000,
+        "unit": "lumpsum + per sq.ft",
+        "example_calc": "1500 sq.ft: 15000+1500*10*1.2 = 33000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["design non-compliance with NBC 2016", "inspection backlog"],
+      "output_artifact": "Fire NOC certificate",
+      "quality_checks": ["Sprinkler/hydrant layout per NBC", "Means of escape compliance"]
+    },
+
+    {
+      "name": "approve_go_no_go",
+      "display_name": "Go / No-Go Decision Gate",
+      "category": "strategy",
+      "phase": "pre_construction",
+      "description": "Formal client-PM-consultant meeting to review feasibility, budget, legal clearance, and authorize project start.",
+      "when_used": "After all pre-construction checks.",
+      "prerequisites": ["estimate_budget", "submit_approvals", "conduct_soil_investigation"],
+      "enables": ["fence_site", "create_schedule"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 1,
+      "max_workers": 10,
+      "cost_model": {
+        "formula": "0",
+        "base_rate": 0,
+        "unit": "internal meeting cost only",
+        "example_calc": "Nil direct cost",
+        "contingency_pct": 0
+      },
+      "risk_factors": ["funding not arranged", "legal disputes unresolved"],
+      "output_artifact": "Signed go/no-go minutes",
+      "quality_checks": ["Budget within client threshold", "All statutory approvals in place"]
+    },
+
+    
+
+    {
+      "name": "fence_site",
+      "display_name": "Site Fencing / Hoarding",
+      "category": "site_prep",
+      "phase": "site_prep",
+      "description": "Erect GI sheet hoarding or chain-link fencing, install entrance gate, signage, and safety boards.",
+      "when_used": "Before mobilization.",
+      "prerequisites": ["approve_go_no_go"],
+      "enables": ["setup_temp_facilities", "demolish_existing_structure"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 2,
+      "min_workers": 3,
+      "max_workers": 6,
+      "cost_model": {
+        "formula": "450 * L * R",
+        "base_rate": 450,
+        "unit": "per rm of hoarding",
+        "example_calc": "Perimeter 160 rm: 450*160*1.2 = 86400 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["road encroachment permission delay", "pilferage of hoarding sheets"],
+      "output_artifact": "Secured site boundary",
+      "quality_checks": ["Signage per IS:7969", "Night reflectors installed", "Guard appointed"]
+    },
+
+    {
+      "name": "demolish_existing_structure",
+      "display_name": "Demolition of Existing Structure",
+      "category": "site_prep",
+      "phase": "site_prep",
+      "description": "Mechanical and manual demolition, debris segregation, recycling of steel, and disposal of rubble.",
+      "when_used": "If existing structure on site.",
+      "prerequisites": ["fence_site", "perform_utility_scan"],
+      "enables": ["strip_topsoil"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 5,
+      "min_workers": 6,
+      "max_workers": 20,
+      "cost_model": {
+        "formula": "30 * V_built * C * R + 500 * N_truckloads",
+        "base_rate": 30,
+        "unit": "per m³ built volume",
+        "example_calc": "800 m³ structure: 30*800*1.0*1.2+500*40 = 28800+20000 = 48800 INR",
+        "contingency_pct": 15
+      },
+      "risk_factors": ["asbestos presence", "structural collapse risk", "groundwater seepage"],
+      "output_artifact": "Clear site, salvaged materials inventory",
+      "quality_checks": ["Utility disconnection proof", "Asbestos survey done", "Debris disposal challan"]
+    },
+
+    {
+      "name": "strip_topsoil",
+      "display_name": "Topsoil Stripping & Stockpile",
+      "category": "site_prep",
+      "phase": "site_prep",
+      "description": "Strip 150–300mm top organic layer and stockpile for reuse in landscaping.",
+      "when_used": "Before excavation.",
+      "prerequisites": ["demolish_existing_structure"],
+      "enables": ["mark_layout", "bulk_excavation"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 3,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "20 * A * T * R",
+        "base_rate": 20,
+        "unit": "per sq.ft",
+        "example_calc": "1500 sq.ft flat: 20*1500*1.0*1.2 = 36000 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["mixed fill/organic layer", "monsoon softness"],
+      "output_artifact": "Stripped site ready for layout",
+      "quality_checks": ["Layer thickness confirmed", "Stockpile away from drainage"]
+    },
+
+    {
+      "name": "setup_temp_facilities",
+      "display_name": "Temporary Site Facilities Setup",
+      "category": "site_prep",
+      "phase": "site_prep",
+      "description": "Install site office, labour camp, material storage yard, temporary power (DG/BESCOM temp connection), water tanker, sanitation, and first-aid.",
+      "when_used": "Before construction begins.",
+      "prerequisites": ["fence_site"],
+      "enables": ["mobilize_equipment", "allocate_workers"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 3,
+      "min_workers": 4,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "50000 + (A * 5 * R)",
+        "base_rate": 50000,
+        "unit": "lumpsum + per sq.ft",
+        "example_calc": "1500 sq.ft: 50000+1500*5*1.2 = 59000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["BESCOM temp connection delay", "water scarcity"],
+      "output_artifact": "Functional site infrastructure",
+      "quality_checks": ["Earthing for temp power", "Fire extinguisher at storage", "First-aid box stocked"]
+    },
+
+    {
+      "name": "mark_layout",
+      "display_name": "Site Layout Marking",
+      "category": "site_prep",
+      "phase": "site_prep",
+      "description": "Transfer architectural grid to ground using total station, string lines, and lime powder. Establish column centre points, wall lines, and reference benchmarks.",
+      "when_used": "Before excavation.",
+      "prerequisites": ["run_topography_survey", "strip_topsoil"],
+      "enables": ["bulk_excavation"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 2,
+      "max_workers": 4,
+      "cost_model": {
+        "formula": "3000 + (A * 1.5 * R)",
+        "base_rate": 3000,
+        "unit": "lumpsum + per sq.ft",
+        "example_calc": "1500 sq.ft: 3000+1500*1.5*1.2 = 5700 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["lost benchmark", "rain washing lime marks"],
+      "output_artifact": "Ground layout with column centres pegged",
+      "quality_checks": ["Diagonal check for squareness (< 5mm tolerance)", "Structural engineer sign-off on layout"]
+    },
+
+    {
+      "name": "mobilize_equipment",
+      "display_name": "Equipment Mobilization",
+      "category": "equipment",
+      "phase": "site_prep",
+      "description": "Transport and commission excavator, JCB, concrete pump, transit mixer, scaffolding, and other plant.",
+      "when_used": "Before heavy civil works.",
+      "prerequisites": ["setup_temp_facilities", "approve_go_no_go"],
+      "enables": ["bulk_excavation", "pour_concrete"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 1,
+      "min_workers": 2,
+      "max_workers": 6,
+      "cost_model": {
+        "formula": "E * D * N_equipment * R",
+        "base_rate": 5000,
+        "unit": "per equipment per day",
+        "example_calc": "Excavator+concrete pump for 1 day mobilization: (5000+6000)*1*1.2 = 13200 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["equipment breakdown en route", "permit for oversized transport"],
+      "output_artifact": "Operational equipment on site",
+      "quality_checks": ["Pre-use equipment inspection checklist", "Operator license verified"]
+    },
+
+    
+
+    {
+      "name": "bulk_excavation",
+      "display_name": "Bulk Excavation (Machine)",
+      "category": "foundation",
+      "phase": "foundation",
+      "description": "Machine excavation for basement, lift pit, or raft foundation using hydraulic excavator.",
+      "when_used": "Initial foundation stage.",
+      "prerequisites": ["mark_layout", "mobilize_equipment", "perform_utility_scan"],
+      "enables": ["manual_excavation", "lay_pcc"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 3,
+      "min_workers": 3,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "350 * V_excavated * T * R",
+        "base_rate": 350,
+        "unit": "per m³",
+        "example_calc": "150 m³ flat soil: 350*150*1.0*1.2 = 63000 INR",
+        "contingency_pct": 15
+      },
+      "risk_factors": ["rock strata requiring blasting/chiselling", "groundwater inflow", "adjacent structure vibration"],
+      "output_artifact": "Excavated pit at designed level",
+      "quality_checks": ["Bottom level check with dumpy level", "Slope stability (no collapse)", "Soil classification confirmed"]
+    },
+
+    {
+      "name": "dewater_excavation",
+      "display_name": "Dewatering of Excavation",
+      "category": "foundation",
+      "phase": "foundation",
+      "description": "Install wellpoint or sump pumping system to keep excavation dry during foundation work.",
+      "when_used": "If groundwater table is shallow (< 3m).",
+      "prerequisites": ["bulk_excavation"],
+      "enables": ["lay_pcc"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 14,
+      "min_workers": 2,
+      "max_workers": 4,
+      "cost_model": {
+        "formula": "8000 * D * N_pumps * R",
+        "base_rate": 8000,
+        "unit": "per pump per day",
+        "example_calc": "2 pumps for 7 days: 8000*7*2*1.2 = 134400 INR",
+        "contingency_pct": 20
+      },
+      "risk_factors": ["power failure stopping pumps", "high inflow rate from adjacent water body"],
+      "output_artifact": "Dry excavation maintained",
+      "quality_checks": ["Water disposal route approved", "Pump capacity > 1.5x inflow rate"]
+    },
+
+    {
+      "name": "manual_excavation",
+      "display_name": "Manual / Precision Excavation",
+      "category": "foundation",
+      "phase": "foundation",
+      "description": "Hand digging for column pits, footing trimming, and utility trenches where machines cannot access.",
+      "when_used": "Fine excavation after bulk phase.",
+      "prerequisites": ["bulk_excavation"],
+      "enables": ["lay_pcc"],
+      "is_critical_path": true,
+      "parallelisable": true,
+      "typical_duration_days": 2,
+      "min_workers": 4,
+      "max_workers": 15,
+      "cost_model": {
+        "formula": "700 * V_manual * T * R",
+        "base_rate": 700,
+        "unit": "per m³",
+        "example_calc": "20 m³: 700*20*1.0*1.2 = 16800 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["hard laterite / murrum layer", "loose soil collapse"],
+      "output_artifact": "Trimmed footing pits to exact design level",
+      "quality_checks": ["Pit dimensions per drawing", "Bottom bearing capacity test (plate load or DCP)"]
+    },
+
+    {
+      "name": "anti_termite_treatment",
+      "display_name": "Anti-Termite Pre-Construction Treatment",
+      "category": "foundation",
+      "phase": "foundation",
+      "description": "Soil poisoning with chlorpyrifos/bifenthrin at foundation trenches, sub-grade, and perimeter.",
+      "when_used": "After excavation, before PCC.",
+      "prerequisites": ["manual_excavation"],
+      "enables": ["lay_pcc"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 1,
+      "min_workers": 2,
+      "max_workers": 4,
+      "cost_model": {
+        "formula": "4 * A * R",
+        "base_rate": 4,
+        "unit": "per sq.ft",
+        "example_calc": "1500 sq.ft: 4*1500*1.2 = 7200 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["rain washing chemical before curing"],
+      "output_artifact": "Anti-termite treatment certificate",
+      "quality_checks": ["Certificate from licensed pest control firm", "IS:6313 compliance"]
+    },
+
+    {
+      "name": "lay_pcc",
+      "display_name": "Plain Cement Concrete (PCC) Bed",
+      "category": "foundation",
+      "phase": "foundation",
+      "description": "Lay 75–100mm M10 PCC blinding layer to provide a clean working surface for reinforcement.",
+      "when_used": "Before reinforcement placement.",
+      "prerequisites": ["manual_excavation", "anti_termite_treatment"],
+      "enables": ["fabricate_rebar", "install_formwork"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 4,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "4000 * V_pcc * R",
+        "base_rate": 4000,
+        "unit": "per m³",
+        "example_calc": "10 m³ PCC: 4000*10*1.2 = 48000 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["rain before setting"],
+      "output_artifact": "Level PCC blinding ready for rebar",
+      "quality_checks": ["Level check ± 5mm", "Thickness probe at 4 points"]
+    },
+
+    {
+      "name": "fabricate_rebar",
+      "display_name": "Reinforcement Steel Fabrication",
+      "category": "foundation",
+      "phase": "foundation",
+      "description": "Cut, bend, and tie reinforcement steel cages per bar-bending schedules for footings, columns, and beams.",
+      "when_used": "Before placement in formwork.",
+      "prerequisites": ["prepare_structural_drawings", "lay_pcc"],
+      "enables": ["install_formwork"],
+      "is_critical_path": true,
+      "parallelisable": true,
+      "typical_duration_days": 3,
+      "min_workers": 4,
+      "max_workers": 12,
+      "cost_model": {
+        "formula": "900 * W_steel_tonnes * C * R",
+        "base_rate": 900,
+        "unit": "per tonne (fabrication labour only; steel material separate)",
+        "example_calc": "5 tonnes for foundation: 900*5*1.0*1.2 = 5400 INR labour + steel @ 72000/tonne*5 = 360000 INR material",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["wrong bar diameter supplied", "rain causing rust before embedment"],
+      "output_artifact": "Fabricated rebar cages ready for placement",
+      "quality_checks": ["Bar dia as per BBS", "Cover block placement (40mm for foundation)", "Binding wire not loose"]
+    },
+
+    {
+      "name": "install_formwork",
+      "display_name": "Formwork / Shuttering Installation",
+      "category": "foundation",
+      "phase": "foundation",
+      "description": "Erect timber, plywood, or steel formwork with props and ties for footings, columns, beams, and slabs.",
+      "when_used": "Before concrete pouring.",
+      "prerequisites": ["fabricate_rebar"],
+      "enables": ["pour_concrete"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 2,
+      "min_workers": 4,
+      "max_workers": 10,
+      "cost_model": {
+        "formula": "600 * A_formwork * C * R",
+        "base_rate": 600,
+        "unit": "per sq.ft of contact area",
+        "example_calc": "200 sq.ft contact area: 600*200*1.0*1.2 = 144000 INR (includes material + labour)",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["formwork deflection causing misaligned columns", "strike too early"],
+      "output_artifact": "Plumb, leak-proof formwork",
+      "quality_checks": ["Plumb check < 2mm/m", "Alignment per drawing ± 5mm", "Oiling applied"]
+    },
+
+    {
+      "name": "pour_concrete",
+      "display_name": "Concrete Pouring",
+      "category": "foundation",
+      "phase": "foundation",
+      "description": "Continuous concrete pour using RMC transit mixer or site batching, with needle vibrator compaction. Includes foundation, columns, beams, slabs.",
+      "when_used": "After rebar and formwork are ready.",
+      "prerequisites": ["install_formwork", "fabricate_rebar"],
+      "enables": ["cure_concrete"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 8,
+      "max_workers": 20,
+      "cost_model": {
+        "formula": "6500 * V_concrete * C * R",
+        "base_rate": 6500,
+        "unit": "per m³ (RMC M25; includes pump + placement labour)",
+        "example_calc": "20 m³ M25: 6500*20*1.0*1.2 = 156000 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["rain during pour", "RMC delay causing cold joint", "vibrator breakdown"],
+      "output_artifact": "Cast concrete element",
+      "quality_checks": ["Slump test per IS:1199", "Cube samples cast (3 per 50m³)", "No cold joints", "Cover depth verified with cover meter"]
+    },
+
+    {
+      "name": "cure_concrete",
+      "display_name": "Concrete Curing",
+      "category": "foundation",
+      "phase": "foundation",
+      "description": "Water curing using wet gunny bags, pond curing, or curing compound spray for minimum 14 days (28 days for critical elements).",
+      "when_used": "Immediately after pour.",
+      "prerequisites": ["pour_concrete"],
+      "enables": ["deshutter", "backfill_compact"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 14,
+      "min_workers": 1,
+      "max_workers": 3,
+      "cost_model": {
+        "formula": "200 * A_cured * D_cure * R",
+        "base_rate": 200,
+        "unit": "per 100 sq.ft per day (water + labour)",
+        "example_calc": "300 sq.ft cured for 14 days: 200*(300/100)*14*1.2 = 10080 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["water shortage in summer", "hot/windy weather increasing evaporation"],
+      "output_artifact": "Hardened concrete at design strength",
+      "quality_checks": ["Cube test results at 7-day (>67% of 28-day)", "No visible cracking > 0.2mm"]
+    },
+
+    {
+      "name": "deshutter",
+      "display_name": "Deshuttering / Formwork Removal",
+      "category": "foundation",
+      "phase": "foundation",
+      "description": "Remove formwork and props after concrete achieves adequate strength per IS:456 striking times.",
+      "when_used": "After concrete strength verified.",
+      "prerequisites": ["cure_concrete"],
+      "enables": ["backfill_compact", "raise_columns"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 3,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "80 * A_formwork * R",
+        "base_rate": 80,
+        "unit": "per sq.ft of contact area",
+        "example_calc": "200 sq.ft: 80*200*1.2 = 19200 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["premature striking causing cracks", "formwork stuck due to improper oiling"],
+      "output_artifact": "Exposed concrete surface ready for inspection",
+      "quality_checks": ["No honeycombing > 150mm²", "No cracks", "Cover as designed"]
+    },
+
+    {
+      "name": "backfill_compact",
+      "display_name": "Backfilling and Compaction",
+      "category": "foundation",
+      "phase": "foundation",
+      "description": "Fill excavated areas with approved soil or murum in 150mm layers; compact each layer to 95% Proctor density using plate compactor or rammer.",
+      "when_used": "After foundation elements are cured.",
+      "prerequisites": ["cure_concrete", "deshutter"],
+      "enables": ["cast_plinth_beam", "lay_flooring_sub_base"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 2,
+      "min_workers": 4,
+      "max_workers": 10,
+      "cost_model": {
+        "formula": "250 * V_backfill * T * R",
+        "base_rate": 250,
+        "unit": "per m³",
+        "example_calc": "60 m³: 250*60*1.0*1.2 = 18000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["expansive clay settling after rains", "waterlogged fill"],
+      "output_artifact": "Compacted sub-grade",
+      "quality_checks": ["Field density test (sand replacement) ≥ 95% MDD", "No organic material in fill"]
+    },
+
+    
+
+    {
+      "name": "cast_plinth_beam",
+      "display_name": "Plinth Beam / Grade Beam Construction",
+      "category": "structure",
+      "phase": "structure",
+      "description": "Construct RCC plinth beam at plinth level to tie columns and prevent differential settlement.",
+      "when_used": "After foundation is complete.",
+      "prerequisites": ["backfill_compact", "fabricate_rebar"],
+      "enables": ["raise_columns", "lay_damp_proof_course"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 3,
+      "min_workers": 6,
+      "max_workers": 14,
+      "cost_model": {
+        "formula": "5500 * V_plinth_beam * C * R",
+        "base_rate": 5500,
+        "unit": "per m³ (RCC M25 including steel)",
+        "example_calc": "5 m³: 5500*5*1.2*1.2 = 39600 INR",
+        "contingency_pct": 8
+      },
+      "risk_factors": ["rain before curing", "misalignment with column dowels"],
+      "output_artifact": "Cast plinth beam at designed level",
+      "quality_checks": ["Top level ± 3mm", "Dowel positions match column layout"]
+    },
+
+    {
+      "name": "lay_damp_proof_course",
+      "display_name": "Damp Proof Course (DPC)",
+      "category": "structure",
+      "phase": "structure",
+      "description": "Apply 50mm M15 concrete or bituminous felt DPC on top of plinth beam to prevent moisture rising through walls.",
+      "when_used": "Before brickwork commences.",
+      "prerequisites": ["cast_plinth_beam"],
+      "enables": ["lay_bricks"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 1,
+      "min_workers": 2,
+      "max_workers": 4,
+      "cost_model": {
+        "formula": "70 * L_dpc * R",
+        "base_rate": 70,
+        "unit": "per rm",
+        "example_calc": "100 rm: 70*100*1.2 = 8400 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["incorrect level"],
+      "output_artifact": "DPC on all load-bearing walls",
+      "quality_checks": ["Continuity at junctions", "Level ± 3mm"]
+    },
+
+    {
+      "name": "raise_columns",
+      "display_name": "Column Construction",
+      "category": "structure",
+      "phase": "structure",
+      "description": "Construct RCC columns floor by floor including rebar binding, formwork, pour, and cure.",
+      "when_used": "After plinth beam, repeated each floor.",
+      "prerequisites": ["cast_plinth_beam"],
+      "enables": ["install_slab_formwork", "lay_bricks"],
+      "is_critical_path": true,
+      "parallelisable": true,
+      "typical_duration_days": 4,
+      "min_workers": 6,
+      "max_workers": 16,
+      "cost_model": {
+        "formula": "7000 * V_columns * C * F * R",
+        "base_rate": 7000,
+        "unit": "per m³ (M25 RCC including steel)",
+        "example_calc": "8 m³ columns G+1: 7000*8*1.0*1.05*1.2 = 70560 INR",
+        "contingency_pct": 8
+      },
+      "risk_factors": ["column out of plumb > 5mm", "honeycomb due to poor vibration", "formwork failure"],
+      "output_artifact": "Structural columns plumb and cured",
+      "quality_checks": ["Plumb tolerance ≤ H/500", "Core test if cube results fail", "Cover meter test"]
+    },
+
+    {
+      "name": "install_slab_formwork",
+      "display_name": "Slab Centering and Propping",
+      "category": "structure",
+      "phase": "structure",
+      "description": "Erect soffit shuttering with cup-lock/acrow props, beam bottom, and side formwork for flat slab or beam-slab system.",
+      "when_used": "After columns reach slab soffit level.",
+      "prerequisites": ["raise_columns"],
+      "enables": ["fix_slab_rebar"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 3,
+      "min_workers": 6,
+      "max_workers": 14,
+      "cost_model": {
+        "formula": "250 * A_slab * C * F * R",
+        "base_rate": 250,
+        "unit": "per sq.ft of slab area",
+        "example_calc": "1000 sq.ft slab: 250*1000*1.0*1.05*1.2 = 315000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["prop spacing error causing slab deflection", "poor plywood quality"],
+      "output_artifact": "Slab soffit formwork at design level",
+      "quality_checks": ["Prop spacing ≤ 1.0m", "Level check ± 5mm", "Joints sealed to prevent grout loss"]
+    },
+
+    {
+      "name": "fix_slab_rebar",
+      "display_name": "Slab Reinforcement Placement",
+      "category": "structure",
+      "phase": "structure",
+      "description": "Place bottom and top reinforcement mesh, bent-up bars, and chair spacers per structural drawings.",
+      "when_used": "After slab formwork is ready.",
+      "prerequisites": ["install_slab_formwork", "fabricate_rebar"],
+      "enables": ["embed_mep_conduits", "pour_slab"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 2,
+      "min_workers": 6,
+      "max_workers": 14,
+      "cost_model": {
+        "formula": "900 * W_slab_steel_tonnes * R",
+        "base_rate": 900,
+        "unit": "per tonne (labour only)",
+        "example_calc": "1.5 tonnes: 900*1.5*1.2 = 1620 INR labour + 72000*1.5 = 108000 material",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["chair spacer omission reducing top cover", "bar omission at support zones"],
+      "output_artifact": "Complete slab reinforcement cage",
+      "quality_checks": ["Cover at top and bottom", "Laps ≥ 50dia", "Extra bars at column junctions per drawings"]
+    },
+
+    {
+      "name": "embed_mep_conduits",
+      "display_name": "Embed MEP Conduits in Slab",
+      "category": "mep",
+      "phase": "structure",
+      "description": "Place electrical conduits, plumbing sleeves, data/LAN conduits, and drainage stub-outs before slab pour.",
+      "when_used": "After rebar, before slab pour.",
+      "prerequisites": ["fix_slab_rebar", "prepare_mep_drawings"],
+      "enables": ["pour_slab"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 1,
+      "min_workers": 3,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "12 * A * C * R",
+        "base_rate": 12,
+        "unit": "per sq.ft",
+        "example_calc": "1000 sq.ft: 12*1000*1.0*1.2 = 14400 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["conduit displacement during pour", "missing stub-outs discovered post-pour"],
+      "output_artifact": "Embedded conduits per MEP drawing",
+      "quality_checks": ["All conduits tied to rebar", "MEP engineer sign-off before pour", "No conduit exceeds 1/3 slab depth"]
+    },
+
+    {
+      "name": "pour_slab",
+      "display_name": "Slab Concrete Pour",
+      "category": "structure",
+      "phase": "structure",
+      "description": "Continuous pour of slab using RMC pump or bucket lift, with needle vibration and level screed finish.",
+      "when_used": "After all pre-pour inspections cleared.",
+      "prerequisites": ["fix_slab_rebar", "embed_mep_conduits", "install_slab_formwork"],
+      "enables": ["cure_concrete", "deshutter"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 10,
+      "max_workers": 25,
+      "cost_model": {
+        "formula": "6800 * V_slab * C * F * R",
+        "base_rate": 6800,
+        "unit": "per m³ (RMC M25 + pump + labour)",
+        "example_calc": "25 m³ slab: 6800*25*1.0*1.0*1.2 = 204000 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["rain delay mid-pour", "concrete pump breakdown", "RMC batching delay creating cold joint"],
+      "output_artifact": "Monolithic slab at design level",
+      "quality_checks": ["Pre-pour check (rebar, conduits, levels)", "Slump test each truck", "Cube samples per 50m³", "Level tolerance ± 5mm"]
+    },
+
+    
+
+    {
+      "name": "mark_wall_layout",
+      "display_name": "Wall Layout Marking",
+      "category": "masonry",
+      "phase": "masonry",
+      "description": "Transfer wall positions from architectural drawings to slab using chalk line and spirit level.",
+      "when_used": "After slab is cured and deshuttered.",
+      "prerequisites": ["deshutter"],
+      "enables": ["lay_bricks"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 2,
+      "max_workers": 3,
+      "cost_model": {
+        "formula": "1500 + (A * 0.5 * R)",
+        "base_rate": 1500,
+        "unit": "lumpsum",
+        "example_calc": "1500 sq.ft: 1500+1500*0.5*1.2 = 2400 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": [],
+      "output_artifact": "Wall centre lines and face lines marked on slab",
+      "quality_checks": ["Cross-check with architectural plan", "Door/window openings marked"]
+    },
+
+    {
+      "name": "lay_bricks",
+      "display_name": "Brick / Block Masonry",
+      "category": "masonry",
+      "phase": "masonry",
+      "description": "Lay 230mm / 115mm thick walls using clay bricks or AAC/hollow concrete blocks in CM 1:4 or 1:6 mortar with raking joints.",
+      "when_used": "After layout marking.",
+      "prerequisites": ["mark_wall_layout", "lay_damp_proof_course"],
+      "enables": ["pour_lintels", "install_electrical_conduits"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 14,
+      "min_workers": 6,
+      "max_workers": 20,
+      "cost_model": {
+        "formula": "65 * A_wall * Q * C * R",
+        "base_rate": 65,
+        "unit": "per sq.ft of wall area (material + labour)",
+        "example_calc": "1200 sq.ft walls: 65*1200*1.0*1.0*1.2 = 93600 INR",
+        "contingency_pct": 8
+      },
+      "risk_factors": ["AAC block shortage", "rain causing mortar wash-out", "poor quality bricks with high absorption"],
+      "output_artifact": "Completed masonry walls",
+      "quality_checks": ["Plumb ≤ 5mm per storey", "Toothing at junctions", "Conduit chasing done before plaster"]
+    },
+
+    {
+      "name": "pour_lintels",
+      "display_name": "Lintel / Band Beam Construction",
+      "category": "masonry",
+      "phase": "masonry",
+      "description": "Cast RCC lintels over door/window openings and tie-beams at sill level.",
+      "when_used": "During wall construction at opening levels.",
+      "prerequisites": ["lay_bricks"],
+      "enables": ["continue_masonry_above_lintel"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 2,
+      "min_workers": 3,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "4500 * V_lintel * R",
+        "base_rate": 4500,
+        "unit": "per m³",
+        "example_calc": "1 m³ lintels: 4500*1*1.2 = 5400 INR",
+        "contingency_pct": 8
+      },
+      "risk_factors": ["insufficient curing before removing props", "wrong rebar size"],
+      "output_artifact": "Cured lintels over all openings",
+      "quality_checks": ["Minimum 150mm bearing on each side", "Bar dia as per structural drawing"]
+    },
+
+    {
+      "name": "install_window_door_frames",
+      "display_name": "Door and Window Frame Fixing",
+      "category": "masonry",
+      "phase": "masonry",
+      "description": "Fix timber/UPVC/aluminium door and window frames into masonry openings with hold-fasts.",
+      "when_used": "During masonry, before plastering.",
+      "prerequisites": ["lay_bricks"],
+      "enables": ["apply_plaster", "install_glazing"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 3,
+      "min_workers": 3,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "3500 * N_frames * Q * R",
+        "base_rate": 3500,
+        "unit": "per frame (labour only; frame cost separate)",
+        "example_calc": "20 frames: 3500*20*1.0*1.2 = 84000 INR (labour)",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["frame size mismatch with opening", "timber warping in monsoon"],
+      "output_artifact": "Frames plumb and secured",
+      "quality_checks": ["Diagonal check ± 2mm", "Plumb ± 1mm/m"]
+    },
+
+    
+
+    {
+      "name": "install_electrical_conduits",
+      "display_name": "Electrical Conduit & Box Installation",
+      "category": "mep",
+      "phase": "mep",
+      "description": "Chase walls and lay PVC/HDPE conduits, junction boxes, switch box cutouts, and earthing loops before plastering.",
+      "when_used": "After masonry, before plastering.",
+      "prerequisites": ["lay_bricks", "prepare_mep_drawings"],
+      "enables": ["apply_plaster", "pull_electrical_wiring"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 7,
+      "min_workers": 3,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "35 * A * C * R",
+        "base_rate": 35,
+        "unit": "per sq.ft",
+        "example_calc": "1500 sq.ft: 35*1500*1.0*1.2 = 63000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["conduit depth insufficient", "box misaligned with finished wall face"],
+      "output_artifact": "Conduit and box layout ready for wiring",
+      "quality_checks": ["Conduit continuity tested", "All boxes flush with planned plaster surface", "Earthing loop installed"]
+    },
+
+    {
+      "name": "install_plumbing",
+      "display_name": "Plumbing Rough-In (Supply & Drainage)",
+      "category": "mep",
+      "phase": "mep",
+      "description": "Install CPVC/UPVC supply lines, soil waste vent pipes, floor traps, and rainwater pipes in walls and floors.",
+      "when_used": "Before plastering and floor laying.",
+      "prerequisites": ["lay_bricks"],
+      "enables": ["pressure_test_plumbing", "apply_plaster"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 7,
+      "min_workers": 3,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "55 * A * C * R",
+        "base_rate": 55,
+        "unit": "per sq.ft",
+        "example_calc": "1500 sq.ft: 55*1500*1.0*1.2 = 99000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["pipe grade errors causing slow drainage", "concealed leaks discovered post-plaster"],
+      "output_artifact": "Rough-in plumbing complete",
+      "quality_checks": ["Slope ≥ 1:40 for drainage", "All ends capped for pressure test", "AS per isometric drawing"]
+    },
+
+    {
+      "name": "pressure_test_plumbing",
+      "display_name": "Plumbing Pressure Test",
+      "category": "mep",
+      "phase": "mep",
+      "description": "Hydraulic pressure test at 1.5× working pressure for 30 minutes to check for leaks in supply lines.",
+      "when_used": "After rough-in, before concealment.",
+      "prerequisites": ["install_plumbing"],
+      "enables": ["apply_plaster"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 2,
+      "max_workers": 3,
+      "cost_model": {
+        "formula": "2000 * N_bathrooms * R",
+        "base_rate": 2000,
+        "unit": "per bathroom/wet area",
+        "example_calc": "4 bathrooms: 2000*4*1.2 = 9600 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["hidden micro-leaks in fittings"],
+      "output_artifact": "Passed pressure test record",
+      "quality_checks": ["Pressure gauge certified", "No pressure drop > 0.1 bar in 30 min"]
+    },
+
+    {
+      "name": "install_hvac_ducting",
+      "display_name": "HVAC Ducting & Outdoor Unit Provisions",
+      "category": "mep",
+      "phase": "mep",
+      "description": "Install GI ducting, indoor unit brackets, condensate drain lines, and outdoor unit pads for split/VRV systems.",
+      "when_used": "After structure, before false ceiling.",
+      "prerequisites": ["pour_slab", "prepare_mep_drawings"],
+      "enables": ["install_false_ceiling", "install_hvac_units"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 5,
+      "min_workers": 3,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "80 * A * C * R",
+        "base_rate": 80,
+        "unit": "per sq.ft (ducted system)",
+        "example_calc": "1500 sq.ft: 80*1500*1.0*1.2 = 144000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["duct clash with structural beams", "condensate drain slope insufficient"],
+      "output_artifact": "HVAC rough-in complete",
+      "quality_checks": ["Duct leak test at 1.5× design static pressure", "Insulation continuity"]
+    },
+
+    
+
+    {
+      "name": "apply_plaster",
+      "display_name": "Internal & External Plastering",
+      "category": "finishing",
+      "phase": "finishing",
+      "description": "Apply 12mm internal (CM 1:4) and 18–20mm external (CM 1:3) plaster with chicken mesh at RCC-masonry junctions.",
+      "when_used": "After MEP rough-in is complete.",
+      "prerequisites": ["install_electrical_conduits", "pressure_test_plumbing"],
+      "enables": ["apply_waterproofing", "install_tiles", "paint_walls"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 14,
+      "min_workers": 6,
+      "max_workers": 18,
+      "cost_model": {
+        "formula": "22 * A_plaster * Q * R",
+        "base_rate": 22,
+        "unit": "per sq.ft of plaster area",
+        "example_calc": "4000 sq.ft plaster: 22*4000*1.0*1.2 = 105600 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["debonding at RCC-masonry junction", "hollowsound plaster", "rain before curing"],
+      "output_artifact": "Smooth plastered surfaces",
+      "quality_checks": ["Hollow-sound tap test", "Thickness probe ± 2mm", "Straightedge gap < 4mm"]
+    },
+
+    {
+      "name": "apply_waterproofing",
+      "display_name": "Waterproofing Treatment",
+      "category": "finishing",
+      "phase": "finishing",
+      "description": "Apply crystalline/polymer/bitumen waterproofing on bathroom floors, terrace, water tank, and wet areas. Includes flood test.",
+      "when_used": "Before tiling in wet areas and after structural slab for terrace.",
+      "prerequisites": ["apply_plaster"],
+      "enables": ["install_tiles"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 4,
+      "min_workers": 3,
+      "max_workers": 6,
+      "cost_model": {
+        "formula": "60 * A_wet * Q * R",
+        "base_rate": 60,
+        "unit": "per sq.ft of treated area",
+        "example_calc": "300 sq.ft wet area: 60*300*1.0*1.2 = 21600 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["poor surface prep", "pin holes in membrane", "foot traffic before curing"],
+      "output_artifact": "Waterproofed surface with flood test passed",
+      "quality_checks": ["Flood test 25mm water for 24 hours", "No seepage on underside", "Two coats applied at right angles"]
+    },
+
+    {
+      "name": "lay_flooring_sub_base",
+      "display_name": "Flooring Sub-Base (Rubble / Sand Filling)",
+      "category": "finishing",
+      "phase": "finishing",
+      "description": "Lay rubble filling or crusher dust under ground floor slabs and compact before screed.",
+      "when_used": "After backfill, before ground floor screed.",
+      "prerequisites": ["backfill_compact"],
+      "enables": ["cast_floor_screed"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 2,
+      "min_workers": 4,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "18 * A * R",
+        "base_rate": 18,
+        "unit": "per sq.ft",
+        "example_calc": "800 sq.ft GF: 18*800*1.2 = 17280 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["organic material contamination"],
+      "output_artifact": "Compacted sub-base at correct level",
+      "quality_checks": ["Level tolerance ± 10mm", "Compaction by rammer"]
+    },
+
+    {
+      "name": "cast_floor_screed",
+      "display_name": "Floor Screed / Bed Concrete",
+      "category": "finishing",
+      "phase": "finishing",
+      "description": "Cast 40–50mm M15 screed as base for tiles or marble, with slope for drainage.",
+      "when_used": "After sub-base, before tiling.",
+      "prerequisites": ["lay_flooring_sub_base", "apply_waterproofing"],
+      "enables": ["install_tiles"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 2,
+      "min_workers": 4,
+      "max_workers": 10,
+      "cost_model": {
+        "formula": "25 * A * R",
+        "base_rate": 25,
+        "unit": "per sq.ft",
+        "example_calc": "800 sq.ft: 25*800*1.2 = 24000 INR",
+        "contingency_pct": 8
+      },
+      "risk_factors": ["hollow screed if base not dampened", "cracking if screed too thin"],
+      "output_artifact": "Level screed at correct height for tiles",
+      "quality_checks": ["Level tolerance ± 3mm", "Slope ≥ 1:100 in wet areas", "Hollow-sound test after 3 days"]
+    },
+
+    {
+      "name": "install_tiles",
+      "display_name": "Floor and Wall Tiling",
+      "category": "finishing",
+      "phase": "finishing",
+      "description": "Lay floor tiles (vitrified/ceramic/marble/granite) and wall tiles in bathrooms and kitchen using adhesive mortar.",
+      "when_used": "After screed and waterproofing.",
+      "prerequisites": ["cast_floor_screed", "apply_waterproofing"],
+      "enables": ["install_sanitary_fixtures", "grout_tiles"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 7,
+      "min_workers": 4,
+      "max_workers": 12,
+      "cost_model": {
+        "formula": "45 * A_tile * Q * R",
+        "base_rate": 45,
+        "unit": "per sq.ft (labour only; tile material separate)",
+        "example_calc": "1200 sq.ft tiling: 45*1200*1.0*1.2 = 64800 INR labour + tiles @ 70–400/sq.ft",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["hollow tiles", "lippage > 1mm", "mismatched grout lines"],
+      "output_artifact": "Tiled floors and walls",
+      "quality_checks": ["Tap test for hollow tiles", "Lippage < 1mm between adjacent tiles", "Grout lines uniform", "Slope in wet areas"]
+    },
+
+    {
+      "name": "grout_tiles",
+      "display_name": "Tile Grouting",
+      "category": "finishing",
+      "phase": "finishing",
+      "description": "Fill joints with epoxy or cement grout matching tile colour, tool flush, and clean surface.",
+      "when_used": "After tile adhesive cures (24–48 hrs).",
+      "prerequisites": ["install_tiles"],
+      "enables": ["install_sanitary_fixtures"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 2,
+      "min_workers": 2,
+      "max_workers": 6,
+      "cost_model": {
+        "formula": "8 * A_tile * Q * R",
+        "base_rate": 8,
+        "unit": "per sq.ft",
+        "example_calc": "1200 sq.ft: 8*1200*1.0*1.2 = 11520 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["epoxy discolouration", "grout cracking in damp areas"],
+      "output_artifact": "Grouted tile joints",
+      "quality_checks": ["No voids in joints", "Surface cleaned before grout sets hard"]
+    },
+
+    {
+      "name": "install_false_ceiling",
+      "display_name": "False Ceiling / Gypsum Ceiling",
+      "category": "finishing",
+      "phase": "finishing",
+      "description": "Install gypsum board, grid, or POP false ceiling with integrated lighting provisions and access panels.",
+      "when_used": "After HVAC ducting, before electrical wiring pull.",
+      "prerequisites": ["install_hvac_ducting", "install_electrical_conduits"],
+      "enables": ["pull_electrical_wiring", "install_light_fixtures"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 5,
+      "min_workers": 3,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "90 * A_ceiling * Q * C * R",
+        "base_rate": 90,
+        "unit": "per sq.ft",
+        "example_calc": "800 sq.ft: 90*800*1.0*1.0*1.2 = 86400 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["deflection if props insufficient", "moisture warping gypsum"],
+      "output_artifact": "Level false ceiling with lighting openings",
+      "quality_checks": ["Level tolerance ± 3mm", "Access panels at all MEP junction boxes"]
+    },
+
+    {
+      "name": "install_sanitary_fixtures",
+      "display_name": "Sanitary Fixture Installation",
+      "category": "finishing",
+      "phase": "finishing",
+      "description": "Fix WC, washbasin, shower, bathtub, urinal, CP fittings, and accessories.",
+      "when_used": "After tiling and grouting.",
+      "prerequisites": ["grout_tiles", "install_plumbing"],
+      "enables": ["test_sanitary_fixtures"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 3,
+      "min_workers": 2,
+      "max_workers": 6,
+      "cost_model": {
+        "formula": "8000 * N_bathrooms * Q * R",
+        "base_rate": 8000,
+        "unit": "per bathroom (labour; fixtures extra)",
+        "example_calc": "4 bathrooms: 8000*4*1.0*1.2 = 38400 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["flush not seating properly", "supply connection leaks"],
+      "output_artifact": "Functional bathrooms",
+      "quality_checks": ["Flush test (minimum 6 L per flush)", "Leak-free connections", "All accessories level"]
+    },
+
+    {
+      "name": "pull_electrical_wiring",
+      "display_name": "Electrical Wiring Pull",
+      "category": "mep",
+      "phase": "finishing",
+      "description": "Pull FR-LSZH copper wires through conduits, terminate at switch boxes, MCBs, and power points.",
+      "when_used": "After false ceiling and before paint.",
+      "prerequisites": ["install_false_ceiling", "install_electrical_conduits"],
+      "enables": ["install_light_fixtures", "install_db_panels", "test_electrical"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 7,
+      "min_workers": 3,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "25 * A * C * R",
+        "base_rate": 25,
+        "unit": "per sq.ft",
+        "example_calc": "1500 sq.ft: 25*1500*1.0*1.2 = 45000 INR (labour only)",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["wire gauge under-spec", "mixed neutral/earth", "conduit crush points"],
+      "output_artifact": "Wired circuits ready for boards",
+      "quality_checks": ["IR test > 1MΩ per circuit", "Polarity correct", "Circuit labelled"]
+    },
+
+    {
+      "name": "install_db_panels",
+      "display_name": "Distribution Board (DB) Installation",
+      "category": "mep",
+      "phase": "finishing",
+      "description": "Install main LT panel, distribution boards, MCBs, RCCBs, SPDs, and earth leakage relays per load schedule.",
+      "when_used": "After wiring pull.",
+      "prerequisites": ["pull_electrical_wiring"],
+      "enables": ["test_electrical", "obtain_bescom_connection"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 2,
+      "min_workers": 2,
+      "max_workers": 4,
+      "cost_model": {
+        "formula": "15000 * N_db * C * R",
+        "base_rate": 15000,
+        "unit": "per DB (labour + bus; MCBs separate)",
+        "example_calc": "3 DBs: 15000*3*1.0*1.2 = 54000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["overloaded circuits", "missing RCCB for wet area circuits"],
+      "output_artifact": "Functional distribution boards",
+      "quality_checks": ["IE Rules compliance", "Load balance < 10% unbalance", "All breakers labelled"]
+    },
+
+    {
+      "name": "test_electrical",
+      "display_name": "Electrical Testing & Commissioning",
+      "category": "mep",
+      "phase": "finishing",
+      "description": "Insulation resistance test, earth continuity test, RCD trip time test, and load test.",
+      "when_used": "Before BESCOM connection and handover.",
+      "prerequisites": ["install_db_panels"],
+      "enables": ["obtain_bescom_connection"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 2,
+      "max_workers": 3,
+      "cost_model": {
+        "formula": "5000 * N_floors * R",
+        "base_rate": 5000,
+        "unit": "per floor",
+        "example_calc": "2 floors: 5000*2*1.2 = 12000 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["failed IR test requiring rewiring"],
+      "output_artifact": "Electrical test certificate",
+      "quality_checks": ["IS:732 compliance", "RCCB trips < 300ms", "Earth resistance < 1Ω"]
+    },
+
+    {
+      "name": "obtain_bescom_connection",
+      "display_name": "BESCOM Permanent Power Connection",
+      "category": "mep",
+      "phase": "finishing",
+      "description": "Apply for and obtain permanent electricity connection from BESCOM including meter installation.",
+      "when_used": "Before possession.",
+      "prerequisites": ["test_electrical"],
+      "enables": ["obtain_occupation_certificate"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 30,
+      "min_workers": 1,
+      "max_workers": 1,
+      "cost_model": {
+        "formula": "10000 + (5000 * N_kva * R)",
+        "base_rate": 10000,
+        "unit": "lumpsum + per kVA sanctioned load",
+        "example_calc": "10 kVA: 10000+5000*10*1.2 = 70000 INR (security + misc)",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["BESCOM backlog", "transformer capacity constraint"],
+      "output_artifact": "Live metered connection",
+      "quality_checks": ["Meter installed at correct height", "Sealing of meter box"]
+    },
+
+    {
+      "name": "paint_walls",
+      "display_name": "Wall Painting — Putty + Primer + Finish",
+      "category": "finishing",
+      "phase": "finishing",
+      "description": "Apply gypsum putty, primer, and two coats of interior emulsion / exterior weathershield paint.",
+      "when_used": "After all wet works (plaster, tiles, MEP) are complete.",
+      "prerequisites": ["apply_plaster", "pull_electrical_wiring"],
+      "enables": ["install_light_fixtures", "install_joinery"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 10,
+      "min_workers": 4,
+      "max_workers": 12,
+      "cost_model": {
+        "formula": "18 * A_paint * Q * R",
+        "base_rate": 18,
+        "unit": "per sq.ft of painted area",
+        "example_calc": "5000 sq.ft: 18*5000*1.0*1.2 = 108000 INR",
+        "contingency_pct": 8
+      },
+      "risk_factors": ["dampness showing through paint", "roller marks", "dust contamination"],
+      "output_artifact": "Finished painted surfaces",
+      "quality_checks": ["Sheen consistency", "No roller marks", "Moisture content of wall < 8% before painting"]
+    },
+
+    {
+      "name": "install_joinery",
+      "display_name": "Doors, Windows, and Woodwork Fitting",
+      "category": "finishing",
+      "phase": "finishing",
+      "description": "Hang door shutters, fit window panels, install modular kitchen, wardrobes, and carpentry.",
+      "when_used": "After painting.",
+      "prerequisites": ["paint_walls", "install_window_door_frames"],
+      "enables": ["install_light_fixtures", "final_clean"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 10,
+      "min_workers": 4,
+      "max_workers": 12,
+      "cost_model": {
+        "formula": "200 * A_joinery * Q * R",
+        "base_rate": 200,
+        "unit": "per sq.ft of joinery",
+        "example_calc": "400 sq.ft joinery: 200*400*1.0*1.2 = 96000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["warped shutters in monsoon", "hardware not matching specifications"],
+      "output_artifact": "Functional doors and windows",
+      "quality_checks": ["Door swing free", "Weather seal on exteriors", "Locking mechanism tested"]
+    },
+
+    {
+      "name": "install_light_fixtures",
+      "display_name": "Light Fixture & Switch Plate Installation",
+      "category": "mep",
+      "phase": "finishing",
+      "description": "Fix LED lights, ceiling fans, switch plates, socket covers, and commission all circuits.",
+      "when_used": "After painting and joinery.",
+      "prerequisites": ["paint_walls", "pull_electrical_wiring"],
+      "enables": ["final_clean"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 3,
+      "min_workers": 2,
+      "max_workers": 6,
+      "cost_model": {
+        "formula": "8000 * N_rooms * Q * R",
+        "base_rate": 8000,
+        "unit": "per room (labour only)",
+        "example_calc": "8 rooms: 8000*8*1.0*1.2 = 76800 INR",
+        "contingency_pct": 8
+      },
+      "risk_factors": ["wrong lamp specification", "dimmer circuit faults"],
+      "output_artifact": "All fixtures operational",
+      "quality_checks": ["All circuits tested under load", "No visible wiring outside conduit"]
+    },
+
+    
+
+    {
+      "name": "external_plastering",
+      "display_name": "External Plastering & Weather Coating",
+      "category": "external",
+      "phase": "external",
+      "description": "Apply two-coat external cement plaster, texture coat or stone cladding, and weathershield paint.",
+      "when_used": "After structure is complete.",
+      "prerequisites": ["deshutter", "lay_bricks"],
+      "enables": ["construct_compound_wall"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 14,
+      "min_workers": 6,
+      "max_workers": 16,
+      "cost_model": {
+        "formula": "35 * A_external * Q * R",
+        "base_rate": 35,
+        "unit": "per sq.ft of external wall",
+        "example_calc": "2000 sq.ft ext: 35*2000*1.0*1.2 = 84000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["rain before curing", "scaffolding access cost", "staining from rust/efflorescence"],
+      "output_artifact": "Weather-protected external walls",
+      "quality_checks": ["No hollow patches", "Crack-free after 28 days", "Colour consistency"]
+    },
+
+    {
+      "name": "construct_compound_wall",
+      "display_name": "Compound Wall & Gate",
+      "category": "external",
+      "phase": "external",
+      "description": "Construct boundary wall with footing, brick/block walling, coping, plaster, paint, and entrance gate.",
+      "when_used": "During or after main structure.",
+      "prerequisites": ["fence_site"],
+      "enables": ["landscape_hardscape"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 7,
+      "min_workers": 4,
+      "max_workers": 10,
+      "cost_model": {
+        "formula": "1500 * L_perimeter * C * R",
+        "base_rate": 1500,
+        "unit": "per rm of compound wall (2m height)",
+        "example_calc": "60 rm: 1500*60*1.0*1.2 = 108000 INR",
+        "contingency_pct": 8
+      },
+      "risk_factors": ["soil pressure on thin walls", "gate alignment"],
+      "output_artifact": "Secure boundary with gate",
+      "quality_checks": ["Coping for rainwater drip", "Gate hinges load-tested"]
+    },
+
+    {
+      "name": "construct_septic_stp",
+      "display_name": "Septic Tank / STP Construction",
+      "category": "external",
+      "phase": "external",
+      "description": "Construct brick/RCC septic tank or install prefabricated STP with inlet, outlet, and vent pipe.",
+      "when_used": "Before plumbing connections.",
+      "prerequisites": ["bulk_excavation"],
+      "enables": ["connect_drainage"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 5,
+      "min_workers": 4,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "25000 + (3000 * N_persons * C * R)",
+        "base_rate": 25000,
+        "unit": "lumpsum + per person served",
+        "example_calc": "10 persons: 25000+3000*10*1.0*1.2 = 61000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["high water table flooding tank", "BWSSB rejection"],
+      "output_artifact": "Functional septic/STP system",
+      "quality_checks": ["Water tightness test", "Vent above roof line", "Desludging access cover"]
+    },
+
+    {
+      "name": "construct_sump_ohwt",
+      "display_name": "Underground Sump & Overhead Water Tank",
+      "category": "external",
+      "phase": "external",
+      "description": "Construct RCC underground sump and overhead water tank with inlet, outlet, overflow, and manhole.",
+      "when_used": "During foundation/structure stage.",
+      "prerequisites": ["bulk_excavation"],
+      "enables": ["install_plumbing", "install_pumps"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 7,
+      "min_workers": 4,
+      "max_workers": 10,
+      "cost_model": {
+        "formula": "4000 * V_tank_m3 * C * R",
+        "base_rate": 4000,
+        "unit": "per m³ capacity",
+        "example_calc": "10 m³ sump + 2 m³ OHT: 4000*12*1.0*1.2 = 57600 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["leakage from joints", "settlement cracking"],
+      "output_artifact": "Water-tight storage tanks",
+      "quality_checks": ["24-hr water retention test", "Chlorination done before first fill"]
+    },
+
+    {
+      "name": "landscape_hardscape",
+      "display_name": "Landscaping & Hardscape",
+      "category": "external",
+      "phase": "external",
+      "description": "Grade site, lay paving blocks, garden paths, lawn, planting, outdoor lighting, and car parking.",
+      "when_used": "After all construction activities near completion.",
+      "prerequisites": ["construct_compound_wall", "external_plastering"],
+      "enables": ["final_clean", "obtain_occupation_certificate"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 10,
+      "min_workers": 4,
+      "max_workers": 12,
+      "cost_model": {
+        "formula": "40 * A_external_open * Q * R",
+        "base_rate": 40,
+        "unit": "per sq.ft of external open area",
+        "example_calc": "2000 sq.ft: 40*2000*1.0*1.2 = 96000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["plant death in summer", "paving settlement"],
+      "output_artifact": "Completed external hardscape and softscape",
+      "quality_checks": ["Drainage slope away from building ≥ 1:50", "Paving joint filled"]
+    },
+
+    
+
+    {
+      "name": "final_clean",
+      "display_name": "Final Cleaning",
+      "category": "handover",
+      "phase": "handover",
+      "description": "Deep clean all rooms, remove construction debris, clean tiles, paint touch-up, sanitise bathrooms.",
+      "when_used": "Before punch list walkthrough.",
+      "prerequisites": ["install_joinery", "install_light_fixtures"],
+      "enables": ["punch_list_inspection"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 3,
+      "min_workers": 4,
+      "max_workers": 10,
+      "cost_model": {
+        "formula": "3 * A * R",
+        "base_rate": 3,
+        "unit": "per sq.ft",
+        "example_calc": "1500 sq.ft: 3*1500*1.2 = 5400 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["chemical cleaning damaging tile finish"],
+      "output_artifact": "Clean, presentable building",
+      "quality_checks": ["Tile acid wash done and neutralised", "All windows and doors operational"]
+    },
+
+    {
+      "name": "punch_list_inspection",
+      "display_name": "Punch List Walkthrough",
+      "category": "handover",
+      "phase": "handover",
+      "description": "Comprehensive walkthrough with client to record all pending items, defects, and incomplete works.",
+      "when_used": "Before formal handover.",
+      "prerequisites": ["final_clean"],
+      "enables": ["fix_defect", "obtain_occupation_certificate"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 2,
+      "max_workers": 5,
+      "cost_model": {
+        "formula": "0",
+        "base_rate": 0,
+        "unit": "included in PM fee",
+        "example_calc": "Nil",
+        "contingency_pct": 0
+      },
+      "risk_factors": ["large punch list delaying handover"],
+      "output_artifact": "Signed punch list",
+      "quality_checks": ["All systems commissioned and demonstrated", "Manuals handed over"]
+    },
+
+    {
+      "name": "fix_defect",
+      "display_name": "Defect Rectification",
+      "category": "quality",
+      "phase": "handover",
+      "description": "Rework items from punch list — repaint, regrout, re-plaster, fix fittings, redo faulty electrical work.",
+      "when_used": "After punch list.",
+      "prerequisites": ["punch_list_inspection"],
+      "enables": ["obtain_occupation_certificate"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 5,
+      "min_workers": 3,
+      "max_workers": 10,
+      "cost_model": {
+        "formula": "500 * N_defects * C * R",
+        "base_rate": 500,
+        "unit": "per defect item",
+        "example_calc": "40 items: 500*40*1.0*1.2 = 24000 INR",
+        "contingency_pct": 20
+      },
+      "risk_factors": ["recurring defects indicating systemic quality issue"],
+      "output_artifact": "Defect-free building",
+      "quality_checks": ["Client sign-off on each closed item"]
+    },
+
+    {
+      "name": "obtain_occupation_certificate",
+      "display_name": "Occupancy / Completion Certificate",
+      "category": "legal",
+      "phase": "handover",
+      "description": "Apply for OC/CC from BBMP/BDA confirming construction matches sanctioned plan, with plinth level certificate and structural stability certificate.",
+      "when_used": "After construction matches sanctioned plan.",
+      "prerequisites": ["fix_defect", "obtain_bescom_connection", "obtain_fire_noc"],
+      "enables": ["handover_keys"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 60,
+      "min_workers": 1,
+      "max_workers": 1,
+      "cost_model": {
+        "formula": "(A * 30 * R) + 20000",
+        "base_rate": 30,
+        "unit": "per sq.ft + lumpsum (fees + liaison)",
+        "example_calc": "1500 sq.ft: 1500*30*1.2+20000 = 74000 INR",
+        "contingency_pct": 15
+      },
+      "risk_factors": ["deviation from sanctioned plan", "authority inspection backlog"],
+      "output_artifact": "Occupancy Certificate",
+      "quality_checks": ["As-built drawing matches sanctioned plan ± permissible deviation", "Structural certificate from licensed SE"]
+    },
+
+    {
+      "name": "handover_keys",
+      "display_name": "Final Handover",
+      "category": "handover",
+      "phase": "handover",
+      "description": "Formal handover of keys, as-built drawings, equipment manuals, warranty certificates, and maintenance schedule to owner.",
+      "when_used": "After OC and all punch items closed.",
+      "prerequisites": ["obtain_occupation_certificate"],
+      "enables": [],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 1,
+      "max_workers": 3,
+      "cost_model": {
+        "formula": "0",
+        "base_rate": 0,
+        "unit": "nil",
+        "example_calc": "Nil",
+        "contingency_pct": 0
+      },
+      "risk_factors": ["pending balance payment"],
+      "output_artifact": "Handover docket signed",
+      "quality_checks": ["All keys accounted for", "Utility accounts transferred", "Defect liability bond signed"]
+    },
+
+    
+
+    {
+      "name": "order_material",
+      "display_name": "Material Procurement Order",
+      "category": "material",
+      "phase": "operations",
+      "description": "Place just-in-time purchase orders for cement, steel, sand, aggregate, bricks, tiles, or other materials with lead time buffer.",
+      "when_used": "Before dependent tasks run out of material.",
+      "prerequisites": [],
+      "enables": ["dependent physical tasks"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 2,
+      "min_workers": 1,
+      "max_workers": 2,
+      "cost_model": {
+        "formula": "material_unit_rate * quantity * wastage_factor",
+        "base_rate": 0,
+        "unit": "per material unit (see rates below)",
+        "material_rates_inr": {
+          "cement_50kg_bag": 420,
+          "steel_tmt_per_tonne": 72000,
+          "river_sand_per_tonne": 2200,
+          "manufactured_sand_per_tonne": 1400,
+          "20mm_aggregate_per_tonne": 1100,
+          "clay_brick_per_1000": 8000,
+          "aac_block_per_cu.ft": 50,
+          "rmc_m25_per_m3": 5800,
+          "ceramic_tile_per_sqft": 40,
+          "vitrified_tile_per_sqft": 80,
+          "cpvc_pipe_20mm_per_rm": 55,
+          "pvc_conduit_25mm_per_rm": 25,
+          "gypsum_board_per_sqft": 28
+        },
+        "wastage_factors": {
+          "cement": 1.05,
+          "steel": 1.03,
+          "sand": 1.10,
+          "bricks": 1.05,
+          "tiles": 1.10,
+          "paint": 1.10
+        },
+        "example_calc": "100 bags cement: 420*100*1.05 = 44100 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["price spike", "supplier default", "rain damage to cement"],
+      "output_artifact": "Material on site",
+      "quality_checks": ["Test certificate for cement/steel", "Cube test for RMC", "Lot number recorded"]
+    },
+
+    {
+      "name": "book_equipment",
+      "display_name": "Equipment Booking",
+      "category": "equipment",
+      "phase": "operations",
+      "description": "Reserve crane, excavator, concrete pump, transit mixer, or scaffolding for specific dates.",
+      "when_used": "3–5 days before heavy operations.",
+      "prerequisites": [],
+      "enables": ["mobilize_equipment"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 1,
+      "min_workers": 1,
+      "max_workers": 1,
+      "cost_model": {
+        "formula": "E * D * R",
+        "equipment_hire_rates_inr_per_day": {
+          "crane_50t"          : 22000,
+          "excavator_20t"      : 12000,
+          "jcb_3cx"            : 5000,
+          "concrete_pump"      : 8000,
+          "transit_mixer_6m3"  : 4000,
+          "batching_plant_30m3": 15000,
+          "scaffolding_per_1000sqft_per_month": 12000,
+          "acrow_props_50nos"  : 2000,
+          "needle_vibrator"    : 600,
+          "plate_compactor"    : 800,
+          "tower_crane_monthly": 120000
+        },
+        "example_calc": "Excavator 3 days: 12000*3*1.2 = 43200 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["equipment not available on required date", "breakdown on site"],
+      "output_artifact": "Equipment booking confirmation",
+      "quality_checks": ["Insurance verified", "Operator license checked"]
+    },
+
+    {
+      "name": "schedule_equipment",
+      "display_name": "Daily Equipment Scheduling",
+      "category": "equipment",
+      "phase": "operations",
+      "description": "Allocate booked equipment to specific tasks and time windows within each day to minimise idle time.",
+      "when_used": "Daily planning.",
+      "prerequisites": ["book_equipment"],
+      "enables": ["all physical tasks requiring equipment"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 0,
+      "min_workers": 1,
+      "max_workers": 1,
+      "cost_model": {
+        "formula": "E_idle_rate * D_idle * R",
+        "base_rate": 0,
+        "unit": "opportunity cost of idle time",
+        "example_calc": "Concrete pump idle 2 hrs: 8000/8*2*1.2 = 2400 INR lost",
+        "contingency_pct": 0
+      },
+      "risk_factors": ["task slip causing equipment idle", "access conflicts between equipment"],
+      "output_artifact": "Equipment utilisation schedule",
+      "quality_checks": ["Utilisation > 75% per day"]
+    },
+
+    
+
+    {
+      "name": "allocate_workers",
+      "display_name": "Daily Worker Allocation",
+      "category": "workforce",
+      "phase": "operations",
+      "description": "Assign specific trades (mason, carpenter, plumber, electrician, helper) to tasks based on priority.",
+      "when_used": "Each morning before work starts.",
+      "prerequisites": ["setup_temp_facilities"],
+      "enables": ["all physical tasks"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 0,
+      "min_workers": 1,
+      "max_workers": 1,
+      "cost_model": {
+        "formula": "W * daily_wage * R",
+        "daily_wage_rates_inr": {
+          "mason"        : 900,
+          "shuttering_carpenter": 850,
+          "bar_bender"   : 800,
+          "plumber"      : 850,
+          "electrician"  : 900,
+          "painter"      : 800,
+          "tiler"        : 850,
+          "general_helper": 600,
+          "supervisor"   : 1200,
+          "site_engineer": 1800
+        },
+        "example_calc": "5 masons for 1 day: 5*900*1.2 = 5400 INR",
+        "contingency_pct": 0
+      },
+      "risk_factors": ["absenteeism on paydays/festivals"],
+      "output_artifact": "Daily muster roll",
+      "quality_checks": ["Biometric attendance recorded", "PPE compliance checked at gate"]
+    },
+
+    {
+      "name": "reassign_workers",
+      "display_name": "Worker Reassignment",
+      "category": "workforce",
+      "phase": "operations",
+      "description": "Shift workers from lower-priority to higher-priority tasks mid-day due to delays or critical path change.",
+      "when_used": "When priorities change.",
+      "prerequisites": ["allocate_workers"],
+      "enables": ["critical path tasks"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 0,
+      "min_workers": 1,
+      "max_workers": 1,
+      "cost_model": {
+        "formula": "0",
+        "base_rate": 0,
+        "unit": "operational cost only",
+        "example_calc": "No extra cost if within same day",
+        "contingency_pct": 0
+      },
+      "risk_factors": ["trade-specific skills preventing flexible reassignment"],
+      "output_artifact": "Updated task assignment",
+      "quality_checks": ["Worker skill match to task", "Productivity tracked post-reassignment"]
+    },
+
+    {
+      "name": "hire_workers",
+      "display_name": "Additional Worker Hiring",
+      "category": "workforce",
+      "phase": "operations",
+      "description": "Recruit more labour through contractor or labour mandis to increase crew size.",
+      "when_used": "When behind schedule or volume spike.",
+      "prerequisites": [],
+      "enables": ["accelerated task completion"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 2,
+      "min_workers": 1,
+      "max_workers": 1,
+      "cost_model": {
+        "formula": "2000 * N_new_workers * R",
+        "base_rate": 2000,
+        "unit": "per worker (recruitment + initial cost)",
+        "example_calc": "10 workers: 2000*10*1.2 = 24000 INR",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["unskilled labour reducing quality", "labour law compliance"],
+      "output_artifact": "Increased workforce on site",
+      "quality_checks": ["Labour contractor agreement in place", "ID proof verified", "Safety induction done"]
+    },
+
+    {
+      "name": "approve_overtime",
+      "display_name": "Overtime Authorization",
+      "category": "workforce",
+      "phase": "operations",
+      "description": "Extend working hours beyond 8 hours with worker consent, additional pay, and lighting provisions.",
+      "when_used": "To catch up on delays or meet deadlines.",
+      "prerequisites": ["allocate_workers"],
+      "enables": ["faster task completion"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 0,
+      "min_workers": 1,
+      "max_workers": 1,
+      "cost_model": {
+        "formula": "1.5 * daily_wage / 8 * OT * W * R",
+        "base_rate": 1.5,
+        "unit": "1.5× hourly rate per OT hour",
+        "example_calc": "10 workers 2hr OT @ 900/day: 1.5*(900/8)*2*10*1.2 = 4050 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["fatigue increasing error rate", "safety incidents", "diminishing returns > 2 hrs OT"],
+      "output_artifact": "Additional progress on tasks",
+      "quality_checks": ["Fatigue index monitored", "No more than 12 hrs total per day per worker", "Lighting adequate"]
+    },
+
+    
+
+    {
+      "name": "create_schedule",
+      "display_name": "Master Construction Schedule (CPM / Gantt)",
+      "category": "scheduling",
+      "phase": "operations",
+      "description": "Build a Critical Path Method schedule with activity durations, dependencies, milestones, and resource loading.",
+      "when_used": "Before project execution begins.",
+      "prerequisites": ["estimate_budget", "approve_go_no_go"],
+      "enables": ["all execution phases"],
+      "is_critical_path": true,
+      "parallelisable": false,
+      "typical_duration_days": 3,
+      "min_workers": 1,
+      "max_workers": 2,
+      "cost_model": {
+        "formula": "15000 * C * R",
+        "base_rate": 15000,
+        "unit": "lumpsum (PM service)",
+        "example_calc": "Standard project: 15000*1.0*1.2 = 18000 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["unrealistic durations", "missing float on non-critical activities"],
+      "output_artifact": "Baseline CPM schedule (MS Project / Primavera)",
+      "quality_checks": ["Minimum float on critical path = 0", "Resource levelling done", "Client approved"]
+    },
+
+    {
+      "name": "reschedule_tasks",
+      "display_name": "Schedule Recovery / Re-baseline",
+      "category": "scheduling",
+      "phase": "operations",
+      "description": "Adjust task start/end dates due to delay, resource change, or scope change. Update critical path.",
+      "when_used": "When cumulative delay > 5% of project duration.",
+      "prerequisites": ["create_schedule"],
+      "enables": ["accelerated tasks"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 1,
+      "max_workers": 2,
+      "cost_model": {
+        "formula": "P * D_delay * C",
+        "base_rate": 5000,
+        "unit": "penalty + replanning cost per day of delay",
+        "example_calc": "5 day delay at 5000/day: 5000*5*1.0 = 25000 INR additional cost",
+        "contingency_pct": 10
+      },
+      "risk_factors": ["cascade delays on downstream activities", "client dissatisfaction"],
+      "output_artifact": "Updated schedule with new baseline",
+      "quality_checks": ["Resource availability confirmed for revised dates", "Client informed of impact"]
+    },
+
+    
+
+    {
+      "name": "handle_weather_delay",
+      "display_name": "Weather Delay Management",
+      "category": "risk",
+      "phase": "operations",
+      "description": "Cover open concrete/brickwork, halt concreting in rain, deploy drainage pumps, reschedule activities.",
+      "when_used": "During rain or storm.",
+      "prerequisites": [],
+      "enables": ["reschedule_tasks"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 2,
+      "max_workers": 8,
+      "cost_model": {
+        "formula": "P * D_weather_delay + 3000 * N_tarps * R",
+        "base_rate": 3000,
+        "unit": "per day downtime cost + protection material",
+        "example_calc": "2 day rain halt: 5000*2+3000*5*1.2 = 28000 INR",
+        "contingency_pct": 20
+      },
+      "risk_factors": ["prolonged monsoon extending programme"],
+      "output_artifact": "Site protected, schedule adjusted",
+      "quality_checks": ["Concrete curing not interrupted", "Drainage maintained"]
+    },
+
+    {
+      "name": "conduct_quality_inspection",
+      "display_name": "Quality Inspection / Third-Party Audit",
+      "category": "quality",
+      "phase": "operations",
+      "description": "Engage a third-party quality auditor or structural inspector at key milestones: pre-pour, post-pour, post-plaster.",
+      "when_used": "At defined quality gates.",
+      "prerequisites": ["create_schedule"],
+      "enables": ["fix_defect", "continue_to_next_phase"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 1,
+      "min_workers": 1,
+      "max_workers": 3,
+      "cost_model": {
+        "formula": "8000 * N_inspections * C * R",
+        "base_rate": 8000,
+        "unit": "per inspection visit",
+        "example_calc": "6 inspections: 8000*6*1.0*1.2 = 57600 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["inspector unavailable at short notice"],
+      "output_artifact": "Inspection report with pass/fail",
+      "quality_checks": ["IS code compliance", "Signed inspection report", "Defect list issued"]
+    },
+
+    {
+      "name": "conduct_cube_tests",
+      "display_name": "Concrete Cube Testing",
+      "category": "quality",
+      "phase": "operations",
+      "description": "Test 150mm concrete cubes at 7 and 28 days per IS:516 to confirm design strength.",
+      "when_used": "After every concrete pour ≥ 5m³.",
+      "prerequisites": ["pour_concrete"],
+      "enables": ["deshutter"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 28,
+      "min_workers": 1,
+      "max_workers": 2,
+      "cost_model": {
+        "formula": "150 * N_cubes * R",
+        "base_rate": 150,
+        "unit": "per cube (lab testing fee)",
+        "example_calc": "18 cubes (3 sets): 150*18*1.2 = 3240 INR",
+        "contingency_pct": 5
+      },
+      "risk_factors": ["failure requiring core tests and possible demolition"],
+      "output_artifact": "Cube test reports",
+      "quality_checks": ["Min 3 cubes per set", "Average ≥ design strength", "Any single < 85% triggers investigation"]
+    },
+
+    
+
+    {
+      "name": "replan_project",
+      "display_name": "Project Re-planning",
+      "category": "strategy",
+      "phase": "operations",
+      "description": "Full re-optimisation of schedule, resource allocation, and cost plan when project is significantly off track (> 15% slippage).",
+      "when_used": "Major disruption or scope change.",
+      "prerequisites": ["create_schedule"],
+      "enables": ["reschedule_tasks", "hire_workers", "optimize_cost"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 2,
+      "min_workers": 2,
+      "max_workers": 5,
+      "cost_model": {
+        "formula": "P * D_lost + 25000 * R",
+        "base_rate": 25000,
+        "unit": "lumpsum replanning cost + sunk delay cost",
+        "example_calc": "10 day delay: 5000*10+25000*1.2 = 80000 INR",
+        "contingency_pct": 15
+      },
+      "risk_factors": ["stakeholder conflict on revised plan"],
+      "output_artifact": "Recovery schedule + revised budget",
+      "quality_checks": ["Client-approved recovery plan", "Feasibility confirmed with contractors"]
+    },
+
+    {
+      "name": "optimize_cost",
+      "display_name": "Value Engineering / Cost Optimization",
+      "category": "cost",
+      "phase": "operations",
+      "description": "Review BOQ for cost reduction through material substitution, scope trimming, or procurement re-tendering without compromising quality.",
+      "when_used": "When budget overrun > 10%.",
+      "prerequisites": ["estimate_budget"],
+      "enables": ["reschedule_tasks"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 3,
+      "min_workers": 1,
+      "max_workers": 3,
+      "cost_model": {
+        "formula": "0",
+        "base_rate": 0,
+        "unit": "potential saving = 5–15% of remaining budget",
+        "example_calc": "10L remaining, 10% saving = 1L INR reduction",
+        "contingency_pct": 0
+      },
+      "risk_factors": ["quality compromise disguised as cost saving", "contractor resistance"],
+      "output_artifact": "Revised BOQ with savings report",
+      "quality_checks": ["Structural integrity not compromised", "Client approved VE items"]
+    },
+
+    {
+      "name": "request_guidance",
+      "display_name": "Request Expert / PM Guidance",
+      "category": "meta",
+      "phase": "operations",
+      "description": "Escalate a technical or managerial question to a senior project manager, structural engineer, or domain expert.",
+      "when_used": "When uncertain about decision.",
+      "prerequisites": [],
+      "enables": ["informed decision making"],
+      "is_critical_path": false,
+      "parallelisable": true,
+      "typical_duration_days": 1,
+      "min_workers": 1,
+      "max_workers": 2,
+      "cost_model": {
+        "formula": "2000 * D * R",
+        "base_rate": 2000,
+        "unit": "per day of consultant time",
+        "example_calc": "Half day consultation: 2000*0.5*1.2 = 1200 INR",
+        "contingency_pct": 0
+      },
+      "risk_factors": ["advice delay causing programme impact"],
+      "output_artifact": "Written technical advice / decision memo",
+      "quality_checks": ["Consultant credentials verified"]
+    },
+
+    {
+      "name": "do_nothing",
+      "display_name": "Hold / Do Nothing",
+      "category": "meta",
+      "phase": "operations",
+      "description": "Consciously wait without action — optimal when downstream tasks are blocked on material/approval.",
+      "when_used": "When waiting is the optimal action.",
+      "prerequisites": [],
+      "enables": ["nothing"],
+      "is_critical_path": false,
+      "parallelisable": false,
+      "typical_duration_days": 1,
+      "min_workers": 0,
+      "max_workers": 0,
+      "cost_model": {
+        "formula": "fixed_overhead_per_day * D",
+        "base_rate": 3000,
+        "unit": "per day (site standing cost: security, PM, temp power)",
+        "example_calc": "1 day idle: 3000*1 = 3000 INR minimum burn",
+        "contingency_pct": 0
+      },
+      "risk_factors": ["extended idle time burning budget with no progress"],
+      "output_artifact": "None",
+      "quality_checks": ["Justified in daily progress report"]
+    }
+
+  ],
+
+  "summary_stats": {
+    "total_actions": 65,
+    "phases_covered": [
+      "pre_construction (10)",
+      "site_prep (6)",
+      "foundation (8)",
+      "structure (7)",
+      "masonry (4)",
+      "mep (7)",
+      "finishing (10)",
+      "external (5)",
+      "handover (5)",
+      "operations_workforce_scheduling_quality_strategy_meta (18)"
+    ],
+    "total_new_vs_original": "Added 36 new actions to original 29"
+  }
+}

@@ -1,3 +1,4 @@
+# models.py
 """
 Construction RL Environment — Data Models
 Fully typed Pydantic models for Action, Observation, and State.
@@ -74,8 +75,6 @@ class ConstructionObservation(Observation):
     material_waste: float = 0.0
     delay_penalty: float = 0.0
     cement_quality: float = 1.0
-    available_actions: List[str] = Field(default_factory=list)
-    completed_actions: List[str] = Field(default_factory=list)
 
 
 # ──────────────────────────────────────────────
@@ -89,8 +88,15 @@ class Allocation(BaseModel):
 
 class ActionStep(BaseModel):
     """One sub-action inside a multi_action envelope."""
-    # Accepts both core actions and extended catalog action names.
-    action_type: str
+    action_type: Literal[
+        "allocate_workers",
+        "allocate_workers_batch",
+        "order_material",
+        "approve_overtime",
+        "reschedule_task",
+        "do_nothing",
+        "request_pm_guidance",
+    ]
     task_id: Optional[int] = None
     worker_count: Optional[int] = None
     allocations: Optional[List[Allocation]] = None
@@ -103,8 +109,16 @@ class ActionStep(BaseModel):
 
 class ConstructionAction(Action):
     """One decision the agent makes per step (one day)."""
-    # Accepts both core actions and extended catalog action names.
-    action_type: str
+    action_type: Literal[
+        "allocate_workers",
+        "allocate_workers_batch",
+        "order_material",
+        "approve_overtime",
+        "reschedule_task",
+        "do_nothing",
+        "request_pm_guidance",
+        "multi_action",
+    ]
     task_id: Optional[int] = None
     worker_count: Optional[int] = None
     allocations: Optional[List[Allocation]] = None
@@ -171,8 +185,3 @@ class ConstructionState(State):
 
     current_weather: Literal["clear", "rain", "storm"] = "clear"
     active_issues: List[str] = Field(default_factory=list)
-    completed_actions: List[str] = Field(default_factory=list)
-    quality_inspection_days: int = 0
-    equipment_booking_days: int = 0
-    replan_bonus_days: int = 0
-    weather_mitigation_days: int = 0

@@ -1,3 +1,4 @@
+# server/modules/task_module.py
 """
 Task Module — Core progress simulation for each construction task.
 
@@ -233,13 +234,15 @@ class Task:
         gain = base_gain * efficiency * eff_weather * equip_modifier * cement_factor
         gain = max(0.0, gain)
 
-        # 6. Apply progress (prep work cannot reduce progress)
+        # 6. Apply progress
         old_progress = self.true_progress
         if arriving and not fully_ok:
-            target = min(prep_progress_cap, old_progress + gain)
-            self.true_progress = max(old_progress, target)
+            # Prep work — capped
+            self.true_progress = min(
+                min(1.0, prep_progress_cap), self.true_progress + gain
+            )
         else:
-            self.true_progress = min(1.0, old_progress + gain)
+            self.true_progress = min(1.0, self.true_progress + gain)
 
         actual_gain = self.true_progress - old_progress
 
@@ -295,8 +298,8 @@ class TaskModule:
         cement_quality: float = 1.0,
     ) -> float:
         total_gain = 0.0
-        for t in self.tasks.values():
-            total_gain += t.update_progress(
+        for task in self.tasks.values():
+            gain = task.update_progress(
                 current_day=current_day,
                 all_tasks=self.tasks,
                 weather_modifier=weather_modifier,
@@ -307,6 +310,7 @@ class TaskModule:
                 equipment_health=equipment_health,
                 cement_quality=cement_quality,
             )
+            total_gain += gain
         return total_gain
 
     def total_delay_days(self, current_day: int) -> int:
@@ -315,9 +319,7 @@ class TaskModule:
     def all_complete(self) -> bool:
         return all(t.true_progress >= 1.0 for t in self.tasks.values())
 
-    def get_critical_tasks_on_time(self, current_day: int) -> tuple[int, int]:
+    def get_critical_tasks_on_time(self, current_day: int):
         critical = [t for t in self.tasks.values() if t.is_critical_path]
-        if not critical:
-            return 0, 0
-        on_time = sum(1 for t in critical if t.days_behind(current_day) == 0)
-        return on_time, len(critical)
+        on_time = [t for t in critical if t.days_behind(current_day) == 0]
+        return len(on_time), len(critical)

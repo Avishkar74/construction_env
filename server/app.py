@@ -86,13 +86,16 @@ async def grader_info():
         "info": (
             "After your episode ends (obs.done == True), call compute_score() "
             "on your ConstructionEnvironment instance to get a 0.0–1.0 score. "
-            "The score breakdown includes: completion_ratio, delay_penalty, "
-            "budget_score, efficiency_score, critical_path_score."
+            "The score breakdown includes: completion_ratio, time_efficiency, "
+            "cost_efficiency, quality_score, and supporting ratios."
         ),
         "score_weights": {
-            "easy":   {"completion": 0.5, "efficiency": 0.3, "delay": 0.2},
-            "medium": {"completion": 0.4, "critical_path": 0.2, "budget": 0.2, "delay": 0.2},
-            "hard":   {"completion": 0.3, "delay": 0.2, "budget": 0.2, "efficiency": 0.15, "critical_path": 0.15},
+            "overall": {
+                "completion": 0.4,
+                "time_efficiency": 0.3,
+                "cost_efficiency": 0.2,
+                "quality": 0.1,
+            },
         },
     })
 

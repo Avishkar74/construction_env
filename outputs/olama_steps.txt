@@ -1,0 +1,318 @@
+Project metadata:
+  - difficulty=medium
+  - max_days=180
+  - total_workers=15
+  - budget_total=600000.0
+  - starting_materials={'cement': 120.0, 'steel': 60.0, 'bricks': 300.0, 'timber': 50.0, 'paint': 40.0, 'tiles': 0.0}
+  - equipment_health={'crane': 1.0, 'excavator': 1.0}
+  - tasks=['1:Site Preparation', '2:Foundation', '3:Walls', '4:Roof', '5:Finishing', '6:Electrical Rough-In', '7:Plumbing', '8:Windows & Doors', '9:Electrical Fitting', '10:Final Inspection']
+  - available_actions=allocate_workers, allocate_workers_batch, approve_overtime, do_nothing, multi_action, order_material, request_pm_guidance, reschedule_task, verify_land_title, conduct_soil_investigation, run_topography_survey, perform_utility_scan, check_fsi_far, prepare_architectural_drawings, prepare_structural_drawings, prepare_mep_drawings, estimate_budget, submit_approvals, obtain_fire_noc, approve_go_no_go, fence_site, book_equipment, hire_workers, create_schedule, handle_weather_delay, optimize_cost, request_guidance
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day  2 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=not_started | progress=0.00 | delta=0.020 | reward=-0.923
+  - budget_used=0.020
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day  3 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.02 | delta=0.068 | reward=-1.313
+  - budget_used=0.040 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day  4 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.09 | delta=0.019 | reward=-0.923
+  - budget_used=0.060 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day  5 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=9/15 | status=in_progress | progress=0.11 | delta=0.070 | reward=-0.480
+  - budget_used=0.077 | budget_delta=10380.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day  6 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=10/15 | status=in_progress | progress=0.18 | delta=0.109 | reward=-0.667
+  - budget_used=0.096 | budget_delta=11220.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day  7 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.29 | delta=0.038 | reward=-1.713
+  - budget_used=0.116 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day  8 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.32 | delta=-0.042 | reward=-2.388
+  - budget_used=0.136 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day  9 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.28 | delta=-0.011 | reward=-2.093
+  - budget_used=0.156 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 10 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.27 | delta=0.103 | reward=-2.493
+  - budget_used=0.176 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 11 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.37 | delta=0.138 | reward=-2.949
+  - budget_used=0.196 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 12 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.51 | delta=0.018 | reward=-3.293
+  - budget_used=0.216 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 13 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.53 | delta=0.048 | reward=-3.693
+  - budget_used=0.236 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 14 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.58 | delta=0.032 | reward=-4.093
+  - budget_used=0.256 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 15 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.61 | delta=0.111 | reward=-4.893
+  - budget_used=0.276 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 16 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=9/15 | status=in_progress | progress=0.72 | delta=0.065 | reward=-5.000
+  - budget_used=0.293 | budget_delta=10380.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 17 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.79 | delta=0.061 | reward=-5.000
+  - budget_used=0.313 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 18 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.85 | delta=0.077 | reward=-5.000
+  - budget_used=0.333 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 19 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=10/15 | status=in_progress | progress=0.92 | delta=-0.003 | reward=-5.000
+  - budget_used=0.352 | budget_delta=11220.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 20 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=11/15 | status=in_progress | progress=0.92 | delta=0.079 | reward=-3.307
+  - budget_used=0.372 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 21 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=blocked | progress=0.00 | delta=0.062 | reward=-0.440
+  - budget_used=0.392 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['2:Foundation']
+  - llm_choice=allocate_workers(task_id=3) | category=workforce | phase=execution
+  - applied_action=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 22 | allocate_workers       | task=1:Site Preparation | workers_assigned=4 | workers=15/15 | status=in_progress | progress=1.00 | delta=0.032 | reward=-3.800
+  - budget_used=0.412 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 23 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.09 | delta=0.033 | reward=-0.500
+  - budget_used=0.432 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 24 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=7/15 | status=in_progress | progress=0.13 | delta=0.148 | reward=-0.127
+  - budget_used=0.449 | budget_delta=10380.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 25 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.28 | delta=0.090 | reward=-0.500
+  - budget_used=0.469 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 26 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.36 | delta=0.016 | reward=-0.900
+  - budget_used=0.489 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 27 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=7/15 | status=in_progress | progress=0.38 | delta=-0.056 | reward=-2.198
+  - budget_used=0.507 | budget_delta=10440.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 28 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.33 | delta=0.022 | reward=-2.500
+  - budget_used=0.527 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 29 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=8/15 | status=in_progress | progress=0.35 | delta=0.087 | reward=-4.193
+  - budget_used=0.545 | budget_delta=11160.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 30 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=7/15 | status=in_progress | progress=0.43 | delta=-0.098 | reward=-5.000
+  - budget_used=0.563 | budget_delta=10440.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 31 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.34 | delta=0.057 | reward=-5.000
+  - budget_used=0.583 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 32 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=7/15 | status=in_progress | progress=0.39 | delta=-0.099 | reward=-5.000
+  - budget_used=0.600 | budget_delta=10380.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=3) | category=workforce | phase=execution
+  - applied_action=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 33 | allocate_workers       | task=1:Site Preparation | workers_assigned=5 | workers=12/15 | status=in_progress | progress=1.00 | delta=-0.005 | reward=-5.000
+  - budget_used=0.616 | budget_delta=9600.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 34 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.29 | delta=0.030 | reward=-5.000
+  - budget_used=0.636 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 35 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.32 | delta=-0.028 | reward=-5.000
+  - budget_used=0.656 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 36 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.29 | delta=0.010 | reward=-5.000
+  - budget_used=0.676 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 37 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.30 | delta=-0.020 | reward=-5.000
+  - budget_used=0.696 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 38 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.28 | delta=0.148 | reward=-5.000
+  - budget_used=0.716 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 39 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.43 | delta=-0.021 | reward=-5.000
+  - budget_used=0.736 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 40 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.41 | delta=0.095 | reward=-5.000
+  - budget_used=0.756 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 41 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.50 | delta=-0.005 | reward=-5.000
+  - budget_used=0.776 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 42 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.50 | delta=0.050 | reward=-5.000
+  - budget_used=0.796 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 43 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.55 | delta=0.068 | reward=-5.000
+  - budget_used=0.816 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 44 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=6/15 | status=in_progress | progress=0.62 | delta=0.072 | reward=-5.000
+  - budget_used=0.832 | budget_delta=9600.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 45 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.69 | delta=0.023 | reward=-5.000
+  - budget_used=0.852 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 46 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.71 | delta=-0.031 | reward=-5.000
+  - budget_used=0.872 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 47 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.68 | delta=0.024 | reward=-5.000
+  - budget_used=0.892 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 48 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.70 | delta=0.023 | reward=-5.000
+  - budget_used=0.912 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 49 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.73 | delta=0.061 | reward=-5.000
+  - budget_used=0.932 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 50 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.79 | delta=0.087 | reward=-5.000
+  - budget_used=0.952 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 51 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.88 | delta=0.023 | reward=-5.000
+  - budget_used=0.972 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 52 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.90 | delta=0.006 | reward=-5.000
+  - budget_used=0.992 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 53 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.90 | delta=0.007 | reward=-5.000
+  - budget_used=1.012 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+Day 54 | allocate_workers       | task=2:Foundation | workers_assigned=6 | workers=9/15 | status=in_progress | progress=0.91 | delta=0.062 | reward=-5.000
+  - budget_used=1.032 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation', '2:Foundation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+  - applied_action=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 55 | allocate_workers       | task=1:Site Preparation | workers_assigned=6 | workers=15/15 | status=in_progress | progress=1.00 | delta=-0.053 | reward=-5.000
+  - budget_used=1.052 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+  - applied_action=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 56 | allocate_workers       | task=1:Site Preparation | workers_assigned=6 | workers=15/15 | status=in_progress | progress=1.00 | delta=0.052 | reward=-5.000
+  - budget_used=1.072 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+  - applied_action=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 57 | allocate_workers       | task=1:Site Preparation | workers_assigned=6 | workers=15/15 | status=in_progress | progress=1.00 | delta=-0.047 | reward=-5.000
+  - budget_used=1.092 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+  - applied_action=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 58 | allocate_workers       | task=1:Site Preparation | workers_assigned=6 | workers=12/15 | status=in_progress | progress=1.00 | delta=0.044 | reward=-5.000
+  - budget_used=1.108 | budget_delta=9600.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+  - applied_action=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 59 | allocate_workers       | task=1:Site Preparation | workers_assigned=6 | workers=15/15 | status=in_progress | progress=1.00 | delta=-0.021 | reward=-5.000
+  - budget_used=1.128 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+  - applied_action=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 60 | allocate_workers       | task=1:Site Preparation | workers_assigned=6 | workers=15/15 | status=in_progress | progress=1.00 | delta=0.001 | reward=-5.000
+  - budget_used=1.148 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']
+  - llm_choice=allocate_workers(task_id=2) | category=workforce | phase=execution
+  - applied_action=allocate_workers(task_id=1) | category=workforce | phase=execution
+Day 61 | allocate_workers       | task=1:Site Preparation | workers_assigned=6 | workers=15/15 | status=in_progress | progress=1.00 | delta=0.029 | reward=-5.000
+  - budget_used=1.168 | budget_delta=12000.00
+  - est_action_cost=1.20
+  - valid_tasks=['1:Site Preparation']

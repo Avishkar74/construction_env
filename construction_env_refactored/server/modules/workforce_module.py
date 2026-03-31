@@ -1,3 +1,4 @@
+# server/modules/workforce_module.py
 """
 Workforce Module
 
@@ -47,8 +48,3 @@ class WorkforceModule:
 
     def daily_labor_cost(self, workers_used: int) -> float:
         return max(0, workers_used) * 800.0  # ₹800/worker/day base rate
-
-    def add_workers(self, count: int) -> None:
-        if count <= 0:
-            return
-        self.total_workers += count

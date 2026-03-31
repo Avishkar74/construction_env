@@ -1,3 +1,4 @@
+# server/modules/chat_module.py
 from __future__ import annotations
 from typing import List, TYPE_CHECKING
 import random
